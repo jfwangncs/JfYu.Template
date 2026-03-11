@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="tests/**" />
+		<EmbeddedResource Remove="tests/**" />
+		<None Remove="tests/**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="JfYu.Request" Version="10.0.1" />
+		<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
+		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+		<PackageReference Include="Mapster" Version="7.4.0" />
+		<!--#if (EnableJWT)-->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.4" />
+		<!--#endif-->
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="10.4.0" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.13.5" />
+		<PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="10.4.0" />
+		<PackageReference Include="NLog" Version="6.1.1" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="6.1.2" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
+		<PackageReference Include="NLog.DiagnosticSource" Version="6.0.3" />
+		<!--#if (EnableTelemetry)-->
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.14.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.14.0-beta.2" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.14.0-beta.2" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.14.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.HttpListener" Version="1.14.0-beta.1" />
+		<PackageReference Include="RabbitMQ.Client.OpenTelemetry" Version="1.0.0-rc.2" />
+		<!--#endif-->
+		<!--#if (EnableJWTRedis)-->
+		<PackageReference Include="JfYu.Redis" Version="10.0.1" />
+		<!--#endif-->
+		<!--#if (EnableWeChat)-->
+		<PackageReference Include="JfYu.WeChat" Version="10.0.1" />
+		<!--#endif-->
+		<!--#if (EnableRBAC)-->
+		<PackageReference Include="JfYu.Data" Version="10.0.1" />
+		<!--#endif-->
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="nlog.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Options\" />
+	</ItemGroup>
+
+</Project>

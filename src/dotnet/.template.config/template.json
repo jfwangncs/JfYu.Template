@@ -1,0 +1,184 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "JfYu",
+    "classifications": [
+        "Web",
+        "WebAPI"
+    ],
+    "identity": "JfYu.WebAPI.Template",
+    "name": "JfYu WebAPI Template",
+    "shortName": "JfYuWebApi",
+    "tags": {
+        "language": "C#",
+        "type": "solution"
+    },
+    "sourceName": "WebApi",
+    "preferNameDirectory": false,
+    "primaryOutputs": [
+        {
+            "path": "WebApi.slnx"
+        }
+    ],
+    "symbols": {
+        "JwtOption": {
+            "type": "parameter",
+            "datatype": "choice",
+            "defaultValue": "Basic",
+            "description": "JWT authentication option",
+            "choices": [
+                {
+                    "choice": "None",
+                    "description": "No JWT authentication"
+                },
+                {
+                    "choice": "Basic",
+                    "description": "JWT authentication without Redis"
+                },
+                {
+                    "choice": "Redis",
+                    "description": "JWT authentication with Redis integration"
+                }
+            ]
+        },
+        "EnableJWT": {
+            "type": "computed",
+            "value": "(JwtOption != \"None\")"
+        },
+        "EnableJWTRedis": {
+            "type": "computed",
+            "value": "(JwtOption == \"Redis\")"
+        },
+        "EnableWeChat": {
+            "type": "parameter",
+            "datatype": "bool",
+            "defaultValue": "true",
+            "description": "Enable WeChat module"
+        },
+        "EnableTelemetry": {
+            "type": "parameter",
+            "datatype": "bool",
+            "defaultValue": "true",
+            "description": "Enable OpenTelemetry (metrics, tracing)"
+        },
+        "EnableUnitTest": {
+            "type": "parameter",
+            "datatype": "bool",
+            "defaultValue": "true",
+            "description": "Include unit tests project"
+        },
+        "EnableRBAC": {
+            "type": "parameter",
+            "datatype": "bool",
+            "defaultValue": "false",
+            "description": "Enable RBAC (Role-Based Access Control) module"
+        }
+    },
+    "sources": [
+        {
+            "exclude": [
+                "**/*.nuspec",
+                "**/.template.config/**",
+                "**/.vs/**",
+                "**/bin/**",
+                "**/obj/**"
+            ],
+            "modifiers": [
+                {
+                    "condition": "(!EnableJWT)",
+                    "exclude": [
+                        "WebApi/Services/JwtService.cs",
+                        "WebApi/Services/Interfaces/IJwtService.cs",
+                        "WebApi/Options/JwtSettings.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableWeChat)",
+                    "exclude": [
+                        "WebApi/Constants/GenderEnum.cs",
+                        "WebApi/Constants/UserRoleEnum.cs",
+                        "WebApi/Model/Request/LoginRequest.cs",
+                        "WebApi/Model/Response/LoginResponse.cs",
+                        "WebApi/Entity/User.cs",
+                        "WebApi/Validations/LoginRequestValidation.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableUnitTest)",
+                    "exclude": [
+                        "WebApi.UnitTests/**"
+                    ]
+                },
+                {
+                    "condition": "(!EnableWeChat || !EnableJWT)",
+                    "exclude": [
+                        "WebApi/Controllers/AuthController.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableJWT || !EnableUnitTest)",
+                    "exclude": [
+                        "WebApi.UnitTests/Services/JwtServiceTests.cs",
+                        "WebApi.UnitTests/Controllers/AuthControllerTests.cs",
+                        "WebApi.UnitTests/Validations/LoginRequestValidationTests.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableWeChat || !EnableUnitTest)",
+                    "exclude": [
+                        "WebApi.UnitTests/Controllers/AuthControllerTests.cs",
+                        "WebApi.UnitTests/Integration/AuthIntegrationTests.cs",
+                        "WebApi.UnitTests/Validations/LoginRequestValidationTests.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableRBAC)",
+                    "exclude": [
+                        "WebApi/Entity/Role.cs",
+                        "WebApi/Entity/Permission.cs",
+                        "WebApi/Entity/RolePermission.cs",
+                        "WebApi/Entity/UserRole.cs",
+                        "WebApi/Entity/AppDbContext.cs",
+                        "WebApi/Constants/PermissionType.cs",
+                        "WebApi/Services/RoleService.cs",
+                        "WebApi/Services/PermissionService.cs",
+                        "WebApi/Services/UserService.cs",
+                        "WebApi/Services/Interfaces/IRoleService.cs",
+                        "WebApi/Services/Interfaces/IPermissionService.cs",
+                        "WebApi/Services/Interfaces/IUserService.cs",
+                        "WebApi/Model/Request/CreateRoleRequest.cs",
+                        "WebApi/Model/Request/UpdateRoleRequest.cs",
+                        "WebApi/Model/Request/CreatePermissionRequest.cs",
+                        "WebApi/Model/Request/UpdatePermissionRequest.cs",
+                        "WebApi/Model/Request/AssignRolePermissionRequest.cs",
+                        "WebApi/Model/Request/AssignUserRoleRequest.cs",
+                        "WebApi/Validations/CreateRoleRequestValidation.cs",
+                        "WebApi/Validations/UpdateRoleRequestValidation.cs",
+                        "WebApi/Validations/CreatePermissionRequestValidation.cs",
+                        "WebApi/Validations/UpdatePermissionRequestValidation.cs",
+                        "WebApi/Validations/AssignRolePermissionRequestValidation.cs",
+                        "WebApi/Validations/AssignUserRoleRequestValidation.cs",
+                        "WebApi/Authorization/PermissionRequirement.cs",
+                        "WebApi/Authorization/PermissionHandler.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableRBAC || !EnableJWT)",
+                    "exclude": [
+                        "WebApi/Controllers/RoleController.cs",
+                        "WebApi/Controllers/PermissionController.cs",
+                        "WebApi/Controllers/UserController.cs"
+                    ]
+                },
+                {
+                    "condition": "(!EnableRBAC || !EnableUnitTest)",
+                    "exclude": [
+                        "WebApi.UnitTests/Services/RoleServiceTests.cs",
+                        "WebApi.UnitTests/Services/PermissionServiceTests.cs",
+                        "WebApi.UnitTests/Services/UserServiceTests.cs",
+                        "WebApi.UnitTests/Controllers/UserControllerTests.cs"
+                    ]
+                }
+            ]
+        }
+    ]
+}

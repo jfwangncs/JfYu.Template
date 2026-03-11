@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="WebApi\WebApi.csproj" Type="C#" />
+  <!--#if (EnableUnitTest)-->
+  <Project Path="WebApi.UnitTests\WebApi.UnitTests.csproj" Type="C#" />
+  <!--#endif-->
+  <Properties Name="Visual Studio">
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
+  </Properties>
+</Solution>
