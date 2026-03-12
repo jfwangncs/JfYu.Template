@@ -1,7 +1,8 @@
-using System.ComponentModel.DataAnnotations;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenTelemetry.Resources;
+using System.ComponentModel.DataAnnotations;
 using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Model.Request;
@@ -32,7 +33,7 @@ namespace WebApi.Controllers
         {
             var user = await _userService.GetOneAsync(q => q.Id.Equals(id));
             if (user == null)
-                return BadRequest(ErrorCode.ValidationError, "User not found.");
+                return BadRequest(ErrorCode.UserNotFound);
             return Ok(user);
         }
 
@@ -56,7 +57,7 @@ namespace WebApi.Controllers
         {
             var result = await _userService.RemoveAsync(q => q.Id.Equals(id));
             if (result <= 0)
-                return BadRequest(ErrorCode.ValidationError, "User not found.");
+                return BadRequest(ErrorCode.UserNotFound);
             return Ok();
         }
 
@@ -66,7 +67,7 @@ namespace WebApi.Controllers
         {
             var user = await _userService.GetOneAsync(q => q.Id.Equals(_currentUser.Id));
             if (user == null)
-                return BadRequest(ErrorCode.ValidationError, "User not found.");
+                return BadRequest(ErrorCode.UserNotFound);
             return Ok(user.Adapt<UserResponse>());
         }
     }

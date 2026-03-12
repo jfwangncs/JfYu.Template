@@ -12,8 +12,6 @@ namespace WebApi.Entity
         [MaxLength(200)]
         public string? Description { get; set; }
 
-        public bool IsActive { get; set; } = true;
-
         public ICollection<Permission> Permissions { get; set; } = [];
 
         public ICollection<User> Users { get; set; } = [];

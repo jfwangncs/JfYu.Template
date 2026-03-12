@@ -2,9 +2,9 @@ namespace WebApi.Constants
 {
     public enum ResponseCode
     {
-        Pending,
-        Success,
-        Failed,
-        Error = 99
+        Success = 0,
+        Pending = 1,
+        Failed = 2,
+        Error = 9
     }
 }

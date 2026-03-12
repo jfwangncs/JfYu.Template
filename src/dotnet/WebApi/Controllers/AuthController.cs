@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using WebApi.Constants;
-using WebApi.Entity; 
+using WebApi.Entity;
 using WebApi.Model;
 using WebApi.Model.Request;
 using WebApi.Model.Response;
@@ -22,7 +22,7 @@ namespace WebApi.Controllers
     {
         private readonly IJwtService _jwtService = jwtService;
         private readonly IUserService _userService = userService;
-        private readonly JwtSettings _jwtSettings = jwtSettings.Value; 
+        private readonly JwtSettings _jwtSettings = jwtSettings.Value;
 
         [HttpPost("login")]
         [AllowAnonymous]
@@ -35,6 +35,7 @@ namespace WebApi.Controllers
 
             var claims = new List<Claim>
             {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, user.UserName),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
@@ -47,8 +48,9 @@ namespace WebApi.Controllers
             {
                 Id = user.Id,
                 AccessToken = token,
-                Username = user.UserName,
-                ExpiresIn = _jwtSettings.Expires
+                RealName = user.RealName ?? user.UserName,
+                ExpiresIn = _jwtSettings.Expires,
+                Roles = user.Roles.Select(r => r.Name).ToList()
             });
         }
         [HttpGet("validate")]

@@ -57,7 +57,7 @@ namespace WebApi.Services
             }
             else
                 throw new BusinessException(ErrorCode.UnsupportedLoginMethod);
-            user!.LastLoginTime = DateTime.Now;
+            user!.LastLoginTime = DateTime.UtcNow;
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
             return user;

@@ -22,6 +22,9 @@ namespace WebApi.Entity
         [Required]
         public required string UserName { get; set; }
 
+        [MaxLength(50)]
+        public string? Email { get; set; }
+
         [MaxLength(500)]
         public string? Password { get; set; }
 

@@ -9,7 +9,8 @@ namespace WebApi.Model.Response
         public string? OpenId { get; set; }
          
         public string? UnionId { get; set; }
-         
+        public string? UserName { get; set; }
+        public string? Email { get; set; }
         public string? NickName { get; set; }
          
         public string? RealName { get; set; }
@@ -30,7 +31,8 @@ namespace WebApi.Model.Response
 
         public DateTime LastLoginTime { get; set; }
         public DateTime CreatedTime { get; set; }
-        public ICollection<RoleResponse> Roles { get; set; } = [];
+        public DateTime UpdatedTime { get; set; }
+        public ICollection<string> Roles { get; set; } = [];
 
     }
 }

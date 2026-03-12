@@ -2,7 +2,7 @@ namespace WebApi.Constants
 {
     public enum PlatformEnum
     {
-        Wechat,
-        Web
+        Wechat = 1,
+        Web = 2
     }
 }

@@ -32,6 +32,7 @@ try
         .AddCustomScalar()
         .AddCustomApiVersioning()
         .AddCustomFluentValidation()
+        .AddMapster()
         //#if (EnableTelemetry)
         .AddCustomOpenTelemetry()
         //#endif
@@ -39,10 +40,7 @@ try
         .AddCustomOptions(builder.Configuration)
         //#if (EnableJWT)
         .AddCustomAuthentication(builder.Configuration)
-        //#endif
-        //#if (EnableRBAC)
-        .AddCustomRBACAuthorization()
-        //#endif
+        //#endif 
         .AddCustomInjection(builder.Configuration);
 
     var app = builder.Build();

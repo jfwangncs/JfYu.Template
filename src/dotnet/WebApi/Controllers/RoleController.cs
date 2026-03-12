@@ -58,44 +58,6 @@ namespace WebApi.Controllers
                 return Ok(role);
             else
                 return BadRequest(ErrorCode.OperationFailed);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _roleService.RemoveAsync(q => q.Id.Equals(id));
-            if (result <= 0)
-                return BadRequest(ErrorCode.ValidationError, "Role not found.");
-            return Ok();
-        }
-
-        [HttpPost("{roleId}/permissions")]
-        public async Task<IActionResult> AssignPermissionsAsync(int roleId, [FromBody][Required] AssignRolePermissionRequest request)
-        {
-            request.RoleId = roleId;
-            await _roleService.AssignPermissionsAsync(request);
-            return Ok();
-        }
-
-        [HttpGet("{roleId}/permissions")]
-        public async Task<IActionResult> GetRolePermissionsAsync(int roleId)
-        {
-            var permissions = await _roleService.GetRolePermissionsAsync(roleId);
-            return Ok(permissions);
-        }
-
-        [HttpPost("assign-user")]
-        public async Task<IActionResult> AssignUserRolesAsync([FromBody][Required] AssignUserRoleRequest request)
-        {
-            await _roleService.AssignUserRolesAsync(request);
-            return Ok();
-        }
-
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserRolesAsync(int userId)
-        {
-            var roles = await _roleService.GetUserRolesAsync(userId);
-            return Ok(roles);
-        }
+        }   
     }
 }

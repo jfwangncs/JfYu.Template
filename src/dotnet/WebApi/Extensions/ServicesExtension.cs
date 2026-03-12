@@ -1,13 +1,6 @@
 using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using JfYu.Data.Extension;
-//#if (EnableJWTRedis)
-using JfYu.Redis.Extensions;
-//#endif 
-//#if (EnableWeChat)
-using JfYu.WeChat;
-//#endif
 using Mapster;
 //#if (EnableJWT)
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,12 +13,8 @@ using Microsoft.AspNetCore.Diagnostics.Logging;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-//#endif
-//#if (EnableRBAC)
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Diagnostics;
 using Microsoft.Extensions.Options;
-
 //#if (EnableJWT)
 using Microsoft.IdentityModel.Tokens;
 //#endif 
@@ -34,77 +23,28 @@ using Microsoft.OpenApi;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System;
 //#endif 
 using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization; 
+using System.Text.Json.Serialization;
 using WebApi.Constants;
-using WebApi.Entity;
 using WebApi.Exceptions;
 using WebApi.Model;
-using WebApi.Model.Request;
-using WebApi.Model.Response;
-
 //#if (EnableJWT)
-using WebApi.Options;
-//#endif
-//#if (EnableJWT || EnableRBAC)
+using WebApi.Options; 
 using WebApi.Services;
 using WebApi.Services.Interfaces;
 //#endif
+
 namespace WebApi.Extensions
 {
     public static class ServicesExtension
     {
         public static readonly string ServiceName = Environment.GetEnvironmentVariable("OTEL_SERVICE_NAME") ?? "WebApi";
-        public static IServiceCollection AddCustomOptions(this IServiceCollection services, IConfiguration configuration)
-        {
-            //#if (EnableJWT)
-            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-            //#endif           
-            return services;
-        }
-
-        public static IServiceCollection AddCustomInjection(this IServiceCollection services, IConfiguration configuration)
-        {
-            //#if (EnableJWT)
-            services.AddScoped<IJwtService, JwtService>();
-            //#endif
-
-            //#if (EnableJWTRedis)
-            services.AddRedisService(options => { configuration.GetSection("Redis").Bind(options); });
-            //#endif
-
-            //#if (EnableWeChat)
-            services.AddMiniProgram(options => { configuration.GetSection("MiniProgram").Bind(options); });
-            //#endif
-
-            //#if (EnableRBAC)
-            services.AddJfYuDbContext<AppDbContext>(options =>
-            {
-                configuration.GetSection("ConnectionStrings").Bind(options);
-            });
-            services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<IPermissionService, PermissionService>();
-            services.AddScoped<IUserService, UserService>();
-            //#endif
-            return services;
-        }
-
-        public static IServiceCollection AddMapster(this IServiceCollection services)
-        {
-            TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
-            //#if (EnableRBAC)
-            TypeAdapterConfig<UpdateRoleRequest, Role>.NewConfig().IgnoreNullValues(true);
-            TypeAdapterConfig<UpdatePermissionRequest, Permission>.NewConfig().IgnoreNullValues(true);
-            TypeAdapterConfig<UpdateUserRequest, User>.NewConfig().IgnoreNullValues(true); 
-            //#endif
-            return services;
-        }
+        
         public static IServiceCollection AddCustomCoreAPI(this IServiceCollection services)
         {
             services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -374,6 +314,7 @@ namespace WebApi.Extensions
             });
             return services;
         }
+     
         public static void UseCustomExceptionHandler(this WebApplication app)
         {
             app.UseExceptionHandler(exceptionHandlerApp =>
