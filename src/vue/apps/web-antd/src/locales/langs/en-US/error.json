@@ -1,0 +1,22 @@
+{
+  "1000": "System error, please try again later",
+  "4000": "Validation error",
+  "4001": "The token is unauthorized",
+  "4002": "The resource is forbidden",
+  "4003": "The operation is failed",
+  "4100": "Invalid credentials",
+  "4101": "User not found",
+  "4102": "Account is disabled",
+  "4103": "Account is locked, please try again later",
+  "4104": "Password not set, please login with phone number",
+  "4105": "Phone number not bound, please login with username and password",
+  "4106": "Invalid SMS verification code",
+  "4107": "SMS verification code has expired",
+  "4108": "WeChat authorization failed",
+  "4109": "WeChat account not bound, please bind your WeChat first",
+  "4110": "Account is not activated, please activate your account first",
+  "4111": "Unsupported login method",
+  "4200": "Role not found",
+  "4201": "Duplicate role name",
+  "4300": "The product is out of stock"
+}

@@ -1,0 +1,41 @@
+{
+  "user": {
+    "title": "User Management",
+    "list": "User List",
+    "name": "User",
+    "id": "User ID",
+    "userName": "Username",
+    "nickName": "Nickname",
+    "realName": "Real Name",
+    "phone": "Phone",
+    "avatar": "Avatar",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "province": "Province",
+    "city": "City",
+    "country": "Country",
+    "lastLoginTime": "Last Login",
+    "createdTime": "Created At",
+    "status": "Status",
+    "operation": "Operation"
+  },
+  "role": {
+    "title": "Role Management",
+    "list": "Role List",
+    "name": "Role",
+    "roleName": "Role Name",
+    "id": "Role ID",
+    "status": "Status",
+    "description": "Description",
+    "createdTime": "Creation Time",
+    "operation": "Operation",
+    "permissions": "Permissions",
+    "setPermissions": "Permissions"
+  },
+  "common": {
+    "prefix-change": "Confirm to change",
+    "mid-change": "",
+    "suffix-change": "to"
+  }
+}
