@@ -18,12 +18,12 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: $t('system.role.roleName'),
       rules: 'required',
-      },
-      {
+    },
+    {
       component: 'Input',
       fieldName: 'description',
       label: $t('system.role.description'),
-    }, 
+    },
     {
       component: 'RadioGroup',
       componentProps: {
@@ -37,7 +37,7 @@ export function useFormSchema(): VbenFormSchema[] {
       defaultValue: 1,
       fieldName: 'status',
       label: $t('system.role.status'),
-    }, 
+    },
     {
       component: 'Input',
       fieldName: 'permissions',
@@ -54,7 +54,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       fieldName: 'searchKey',
       label: $t('system.role.roleName'),
-      }, 
+    },
     {
       component: 'Select',
       componentProps: {
@@ -66,7 +66,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
       fieldName: 'status',
       label: $t('system.role.status'),
-    }, 
+    },
     {
       component: 'RangePicker',
       componentProps: {
@@ -84,8 +84,8 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
   onActionClick: OnActionClickFn<T>,
   onStatusChange?: (newStatus: any, row: T) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
-    return [
-   {
+  return [
+    {
       field: 'id',
       title: $t('system.role.id'),
       width: 100,
@@ -94,7 +94,7 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
       field: 'name',
       title: $t('system.role.roleName'),
       width: 300,
-    },   
+    },
     {
       cellRender: {
         attrs: { beforeChange: onStatusChange },

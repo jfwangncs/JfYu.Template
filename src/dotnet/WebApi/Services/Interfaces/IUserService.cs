@@ -6,10 +6,12 @@ using WebApi.Model.Response;
 
 namespace WebApi.Services.Interfaces
 {
-    public interface IUserService : IService<User, AppDbContext>
-    {
-        Task<User?> LoginAsync(LoginRequest login);
+  public interface IUserService : IService<User, AppDbContext>
+  {
+    Task<User?> LoginAsync(LoginRequest login);
 
-        Task<PagedData<UserResponse>> GetPagedAsync(QueryRequest query);
-    }
+    Task<PagedData<UserResponse>> GetPagedAsync(QueryRequest query);
+
+    Task<int> UpdateAsync(int id, UpdateUserRequest request);
+  }
 }

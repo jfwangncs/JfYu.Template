@@ -2,9 +2,9 @@
 import type { Recordable } from '@vben/types';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import type { SystemRoleApi  } from '#/api';
+import type { SystemRoleApi } from '#/api';
 import { Plus } from '@vben/icons';
-import type { 
+import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
@@ -23,9 +23,9 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: Form,
   destroyOnClose: true,
 });
- 
+
 const [Grid, gridApi] = useVbenVxeGrid({
-     gridOptions: {
+  gridOptions: {
     columns: useColumns(onActionClick, onStatusChange),
     height: 'auto',
     keepSource: true,
@@ -34,10 +34,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
         query: async ({ page }, formValues) => {
           const { startTime, endTime, ...rest } = formValues;
           return await getRoleList({
-            page: page.currentPage,
+            pageIndex: page.currentPage,
             pageSize: page.pageSize,
-            ...(startTime && { startTime: dayjs(startTime).utc().format('YYYY-MM-DD HH:mm:ss') }),
-            ...(endTime && { endTime: dayjs(endTime).utc().format('YYYY-MM-DD HH:mm:ss') }),
+            ...(startTime && {
+              startTime: dayjs(startTime).utc().format('YYYY-MM-DD HH:mm:ss'),
+            }),
+            ...(endTime && {
+              endTime: dayjs(endTime).utc().format('YYYY-MM-DD HH:mm:ss'),
+            }),
             ...rest,
           });
         },
@@ -56,14 +60,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
   } as VxeTableGridOptions<SystemRoleApi.SystemRole>,
   formOptions: {
-    fieldMappingTime: [['createdTime', ['startTime', 'endTime'], 'YYYY-MM-DD HH:mm:ss']],
+    fieldMappingTime: [
+      ['createdTime', ['startTime', 'endTime'], 'YYYY-MM-DD HH:mm:ss'],
+    ],
     schema: useGridFormSchema(),
     submitOnChange: true,
   },
 });
 
 function onActionClick(e: OnActionClickParams<SystemRoleApi.SystemRole>) {
-  switch (e.code) {    
+  switch (e.code) {
     case 'edit': {
       onEdit(e.row);
       break;

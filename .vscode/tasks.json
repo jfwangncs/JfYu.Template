@@ -12,6 +12,31 @@
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "vue: dev",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@vben/web-antd", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/src/vue"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": "ready in"
+        }
+      },
+      "presentation": {
+        "group": "fullstack",
+        "reveal": "always"
+      }
     }
   ]
 }
