@@ -1,21 +1,17 @@
-# CLAUDE.md
+---
+applyTo: "src/vue/**"
+---
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## 技术栈
+## Tech Stack
 
 1. 基于 **pnpm workspaces** + **Turborepo** 的 Vue 3 + TypeScript + Vite monorepo 项目。
 2. 提供多个 UI 组件库版本（Ant Design Vue、Element Plus、Naive UI、TDesign），共享同一套使用tailwindcss+shadcn-vue的UI组件库核心框架。
 3. 要求 Node ≥ 20.19.0，pnpm ≥ 10。
 4. 使用 **prettier** + **eslint** + **stylelint** 进行代码检查和格式化。
 5. 使用 **vitest** 进行单元测试。
-6. 使用 **commitlint** 进行提交规范。
-7. 使用 **czg** 进行提交规范。
-8. 使用 **lefthook** 进行提交规范。
-9. 使用 **vsh** 进行代码检查和格式化。
-10. 使用 **turbo** 进行构建。
-11. 使用 **vite** 进行开发。
-12. 使用 **vue-tsc** 进行类型检查。
+6. 使用 **commitlint** + **czg** + **lefthook** 进行提交规范。
+7. 使用 **vsh** 进行代码检查和格式化。
+8. 使用 **turbo** 进行构建，**vite** 进行开发，**vue-tsc** 进行类型检查。
 
 ```bash
 # 其他检查
@@ -71,9 +67,6 @@ internal/
 scripts/
   vsh/              # CLI 工具（lint、check-dep、check-circular、publint）
   turbo-run/        # 交互式 turbo 运行器
-
-playground/         # 组件演示场
-docs/               # VitePress 文档
 ```
 
 ## 核心架构说明
@@ -116,7 +109,6 @@ docs/               # VitePress 文档
 - `src/router/routes/modules/*.ts`：需要权限验证的动态路由。
 - `src/router/routes/core/`：始终可访问的路由（登录页、404 等）。
 - `mergeRouteModules(import.meta.glob(...))` 用于聚合路由模块文件。
-- 动态路由在运行时由权限系统注册。
 
 ### 适配器模式
 
@@ -129,10 +121,6 @@ docs/               # VitePress 文档
 - `useTabbarStore`：已打开标签页管理。
 
 所有 store 通过 `@vben/stores` 的 `initStores(app, { namespace })` 统一初始化。
-
-### Mock 后端
-
-`apps/backend-mock` 是一个 Nitro 服务器，可单独启动：`pnpm -F @vben/backend-mock start`。Vite 开发服务器通过 `vite.config.ts`（位于 `internal/vite-config`）将 API 请求代理到该服务。
 
 ## 开发约定
 
