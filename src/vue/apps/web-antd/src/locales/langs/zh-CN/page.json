@@ -11,5 +11,10 @@
     "title": "概览",
     "analytics": "分析页",
     "workspace": "工作台"
+  },
+  "system": {
+    "title": "系统管理",
+    "user": "用户管理",
+    "role": "角色管理"
   }
 }

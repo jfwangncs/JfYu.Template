@@ -19,16 +19,8 @@ const tabs = ref([
     value: 'basic',
   },
   {
-    label: '安全设置',
-    value: 'security',
-  },
-  {
     label: '修改密码',
     value: 'password',
-  },
-  {
-    label: '新消息提醒',
-    value: 'notice',
   },
 ]);
 </script>

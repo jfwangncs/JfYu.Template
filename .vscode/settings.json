@@ -200,12 +200,14 @@
     "yaml": false
   },
 
-  "cssVariables.lookupFiles": ["packages/core/base/design/src/**/*.css"],
+  "cssVariables.lookupFiles": [
+    "src/vue/packages/core/base/design/src/**/*.css"
+  ],
 
   "i18n-ally.localesPaths": [
-    "packages/locales/src/langs",
-    "playground/src/locales/langs",
-    "apps/*/src/locales/langs"
+    "src/vue/packages/locales/src/langs",
+    "src/vue/playground/src/locales/langs",
+    "src/vue/apps/*/src/locales/langs"
   ],
   "i18n-ally.pathMatcher": "{locale}/{namespace}.{ext}",
   "i18n-ally.enabledParsers": ["json"],
