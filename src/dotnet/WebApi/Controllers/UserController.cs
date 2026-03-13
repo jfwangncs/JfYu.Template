@@ -52,29 +52,18 @@ namespace WebApi.Controllers
       return Ok(user);
     }
 
-    [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteAsync(int id)
-    {
-      var result = await _userService.RemoveAsync(q => q.Id.Equals(id));
-      if (result <= 0)
-        return BadRequest(ErrorCode.UserNotFound);
-      return Ok();
-    }
-
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody][Required] UpdateUserRequest request)
     {
-      try
-      {
-        await _userService.UpdateAsync(id, request);
-        return Ok();
-      }
-      catch (BusinessException ex)
-      {
-        return BadRequest(ex.ErrorCode);
-      }
+      var user = await _userService.GetOneAsync(q => q.Id.Equals(id));
+      if (user == null)
+        return BadRequest(ErrorCode.UserNotFound);
+
+      if (await _userService.UpdateAsync(request.Adapt(user)) > 0)
+        return Ok(user.Adapt<UserResponse>());
+      else
+        return BadRequest(ErrorCode.OperationFailed);
     }
 
     [HttpGet("info")]

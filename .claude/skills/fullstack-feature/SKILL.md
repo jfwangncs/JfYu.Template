@@ -174,7 +174,7 @@ services.Configure<ProductSettings>(configuration.GetSection("ProductSettings"))
 ```csharp
 public interface IProductService : IService<Product, AppDbContext>
 {
-    Task<PagedData<ProductResponse>> GetPagedAsync(QueryRequest query);
+    Task<PagedResult<ProductResponse>> GetPagedAsync(QueryRequest query);
 }
 ```
 
@@ -190,6 +190,30 @@ public class ProductService(AppDbContext context, ReadonlyDBContext<AppDbContext
 {
     // AddAsync, UpdateAsync, DeleteAsync, GetOneAsync, GetAllAsync are inherited — do NOT re-implement
     // Only add custom business methods
+
+    public async Task<PagedResult<ProductResponse>> GetPagedAsync(QueryRequest query)
+    {
+        var q = _readonlyContext.Products.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.SearchKey))
+            q = q.Where(p => p.Name.Contains(query.SearchKey));
+
+        if (query.Status.HasValue)
+            q = q.Where(p => p.Status == query.Status.Value);
+
+        if (query.StartTime.HasValue)
+            q = q.Where(p => p.CreatedTime >= query.StartTime.Value);
+
+        if (query.EndTime.HasValue)
+            q = q.Where(p => p.CreatedTime <= query.EndTime.Value);
+
+        var paged = await q.ToPagedAsync(q => q.Adapt<IEnumerable<ProductResponse>>(), query.PageIndex, query.PageSize);
+        return new PagedResult<ProductResponse>
+        {
+            Items = paged.Data?.ToList() ?? [],
+            Total = paged.TotalCount
+        };
+    }
 }
 ```
 

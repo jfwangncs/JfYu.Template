@@ -50,27 +50,6 @@ setupVbenVxeTable({
       } as VxeTableGridOptions,
     });
 
-    // 表格配置项可以用 cellRender: { name: 'CellImage' },
-    vxeUI.renderer.add('CellImage', {
-      renderTableDefault(renderOpts, params) {
-        const { props } = renderOpts;
-        const { column, row } = params;
-        return h(Image, { src: row[column.field], ...props });
-      },
-    });
-
-    // 表格配置项可以用 cellRender: { name: 'CellLink' },
-    vxeUI.renderer.add('CellLink', {
-      renderTableDefault(renderOpts) {
-        const { props } = renderOpts;
-        return h(
-          Button,
-          { size: 'small', type: 'link' },
-          { default: () => props?.text },
-        );
-      },
-    });
-
     vxeUI.renderer.forEach((_item, key) => {
       if (key.startsWith('Cell')) {
         vxeUI.renderer.delete(key);

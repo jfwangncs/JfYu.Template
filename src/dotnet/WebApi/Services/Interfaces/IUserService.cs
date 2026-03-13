@@ -1,6 +1,6 @@
-using JfYu.Data.Model;
 using JfYu.Data.Service;
 using WebApi.Entity;
+using WebApi.Model;
 using WebApi.Model.Request;
 using WebApi.Model.Response;
 
@@ -10,8 +10,6 @@ namespace WebApi.Services.Interfaces
   {
     Task<User?> LoginAsync(LoginRequest login);
 
-    Task<PagedData<UserResponse>> GetPagedAsync(QueryRequest query);
-
-    Task<int> UpdateAsync(int id, UpdateUserRequest request);
+    Task<PagedResult<UserResponse>> GetPagedAsync(QueryRequest query);
   }
 }

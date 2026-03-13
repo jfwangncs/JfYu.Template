@@ -104,7 +104,7 @@ export function useColumns<T = SystemUserApi.SystemUser>(
       width: 80,
     },
     {
-      cellRender: { name: 'CellAvatar' },
+      cellRender: { name: 'CellImage' },
       field: 'avatar',
       title: $t('system.user.avatar'),
       width: 70,
@@ -161,14 +161,18 @@ export function useColumns<T = SystemUserApi.SystemUser>(
     {
       field: 'lastLoginTime',
       formatter: ({ cellValue }) =>
-        cellValue ? dayjs.utc(cellValue).local().format('YYYY-MM-DD HH:mm:ss') : '',
+        cellValue
+          ? dayjs.utc(cellValue).local().format('YYYY-MM-DD HH:mm:ss')
+          : '',
       title: $t('system.user.lastLoginTime'),
       width: 180,
     },
     {
       field: 'createdTime',
       formatter: ({ cellValue }) =>
-        cellValue ? dayjs.utc(cellValue).local().format('YYYY-MM-DD HH:mm:ss') : '',
+        cellValue
+          ? dayjs.utc(cellValue).local().format('YYYY-MM-DD HH:mm:ss')
+          : '',
       title: $t('system.user.createdTime'),
       width: 180,
     },

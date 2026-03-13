@@ -1,6 +1,5 @@
 using JfYu.Data.Context;
 using JfYu.Data.Extension;
-using JfYu.Data.Model;
 using JfYu.Data.Service;
 using JfYu.WeChat;
 using Mapster;
@@ -9,6 +8,7 @@ using System.Linq.Expressions;
 using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Exceptions;
+using WebApi.Model;
 using WebApi.Model.Request;
 using WebApi.Model.Response;
 using WebApi.Services.Interfaces;
@@ -63,7 +63,7 @@ namespace WebApi.Services
       return user;
     }
 
-    public async Task<PagedData<UserResponse>> GetPagedAsync(QueryRequest query)
+    public async Task<PagedResult<UserResponse>> GetPagedAsync(QueryRequest query)
     {
       var q = _readonlyContext.Users.Include(q => q.Roles).AsQueryable();
 
@@ -76,17 +76,21 @@ namespace WebApi.Services
             (u.Phone != null && u.Phone.Contains(query.SearchKey)));
       }
 
-      return await q.ToPagedAsync(q => q.Adapt<IEnumerable<UserResponse>>(), query.PageIndex, query.PageSize);
+      if (query.Status.HasValue)
+        q = q.Where(u => u.Status == query.Status.Value);
 
-    }
+      if (query.StartTime.HasValue)
+        q = q.Where(u => u.CreatedTime >= query.StartTime.Value);
 
-    public async Task<int> UpdateAsync(int id, UpdateUserRequest request)
-    {
-      var user = await GetOneAsync(q => q.Id == id);
-      if (user == null)
-        throw new BusinessException(ErrorCode.UserNotFound);
-      request.Adapt(user);
-      return await UpdateAsync(user);
+      if (query.EndTime.HasValue)
+        q = q.Where(u => u.CreatedTime <= query.EndTime.Value);
+
+      var paged = await q.ToPagedAsync(q => q.Adapt<IEnumerable<UserResponse>>(), query.PageIndex, query.PageSize);
+      return new PagedResult<UserResponse>
+      {
+        Items = paged.Data?.ToList() ?? [],
+        Total = paged.TotalCount
+      };
     }
 
     public override async Task<User?> GetOneAsync(Expression<Func<User, bool>>? predicate = null, CancellationToken cancellationToken = default)
