@@ -1,6 +1,6 @@
 ---
 name: dotnet-backend-feature
-description: "Implement a complete backend feature module for the ASP.NET Core 10 WebApi project. Use when adding a new entity, CRUD endpoints, service, or any module in src/dotnet. Covers: DB schema design with user review, Entity + AppDbContext, Request/Response DTOs, FluentValidation, ErrorCode assignment (4000+ range), Options config, Service interface + implementation (JfYu.Data), DI registration, and Controller (CustomController). Follow project conventions end-to-end."
+description: "Implement a complete full-stack feature module (backend + frontend). Use when adding a new entity, CRUD endpoints, service, or any module in src/dotnet AND the corresponding Vue frontend. Covers: DB schema design with user review, Entity + AppDbContext, Request/Response DTOs, FluentValidation, ErrorCode assignment (4000+ range), Options config, Service interface + implementation (JfYu.Data), DI registration, Controller (CustomController), Vue router, API file (requestClient), VxeGrid list page, drawer form, and i18n locales (zh-CN + en-US error/system/page JSON). Follow project conventions end-to-end."
 argument-hint: 'Feature module name, e.g. "Product" or "Order management"'
 ---
 
@@ -279,8 +279,228 @@ namespace WebApi.Controllers
 
 ---
 
+---
+
+## Step 10 — Frontend: Router
+
+Check `src/vue/apps/web-antd/src/router/routes/modules/`.
+
+- **Existing domain file** (e.g., `system.ts`) → add a child route entry.
+- **New domain** → create `<domain>.ts` and add its default export to `src/router/routes/index.ts`.
+
+Route pattern:
+```ts
+{
+  name: 'ProductManagement',           // PascalCase, unique
+  path: '/system/product',
+  component: () => import('#/views/system/product/index.vue'),
+  meta: {
+    icon: 'lucide:package',            // Lucide icon name
+    title: $t('page.system.product'),  // i18n key
+  },
+},
+```
+
+---
+
+## Step 11 — Frontend: API File
+
+Create or extend `src/vue/apps/web-antd/src/api/core/<domain>.ts`:
+
+```ts
+import { requestClient } from '#/api/request';
+
+export namespace SystemProductApi {
+  export interface SystemProduct {
+    id: number;
+    name: string;
+    price: number;
+    status: number;
+    createdTime: string;
+  }
+
+  export interface CreateProductParams {
+    name: string;
+    price: number;
+  }
+
+  export interface UpdateProductParams {
+    name?: string;
+    price?: number;
+    status?: number;
+  }
+}
+
+export async function getProductList(params: Record<string, any>) {
+  return requestClient.get<{ items: SystemProductApi.SystemProduct[]; total: number }>('/product', { params });
+}
+
+export async function createProduct(data: SystemProductApi.CreateProductParams) {
+  return requestClient.post('/product', data);
+}
+
+export async function updateProduct(id: number, data: SystemProductApi.UpdateProductParams) {
+  return requestClient.put(`/product/${id}`, data);
+}
+
+export async function deleteProduct(id: number) {
+  return requestClient.delete(`/product/${id}`);
+}
+```
+
+Then re-export from `src/api/core/index.ts`:
+```ts
+export * from './<domain>';
+```
+
+---
+
+## Step 12 — Frontend: Views (based on Role module template)
+
+Create three files mirroring the role module structure:
+
+### `src/views/<domain>/<name>/data.ts`
+Defines form schemas and column configs using `$t()` for all labels:
+```ts
+import type { VbenFormSchema } from '#/adapter/form';
+import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
+import { $t } from '#/locales';
+
+export function useFormSchema(): VbenFormSchema[] {
+  return [
+    { component: 'Input', fieldName: 'name', label: $t('system.product.name'), rules: 'required' },
+    // ...
+  ];
+}
+
+export function useGridFormSchema(): VbenFormSchema[] { /* search bar schema */ }
+
+export function useColumns(onActionClick: OnActionClickFn, onStatusChange: Function): VxeTableGridOptions['columns'] { /* table columns */ }
+```
+
+### `src/views/<domain>/<name>/modules/form.vue`
+Drawer form for create/edit — uses `useVbenForm` + `useVbenDrawer`:
+```vue
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { useVbenForm, useVbenDrawer } from '@vben/common-ui';
+import { createProduct, updateProduct } from '#/api';
+import { useFormSchema } from '../data';
+
+const emits = defineEmits(['success']);
+const id = ref<number>();
+
+const [Form, formApi] = useVbenForm({ schema: useFormSchema(), showDefaultActions: false });
+const [Drawer, drawerApi] = useVbenDrawer({
+  async onConfirm() {
+    const { valid } = await formApi.validate();
+    if (!valid) return;
+    const values = await formApi.getValues();
+    drawerApi.lock();
+    (id.value ? updateProduct(id.value, values) : createProduct(values))
+      .then(() => { emits('success'); drawerApi.close(); })
+      .catch(() => drawerApi.unlock());
+  },
+  async onOpenChange(isOpen) {
+    if (!isOpen) return;
+    formApi.resetForm();
+    const data = drawerApi.getData<SystemProductApi.SystemProduct>();
+    id.value = data?.id;
+    if (data) { await nextTick(); formApi.setValues(data); }
+  },
+});
+</script>
+```
+
+### `src/views/<domain>/<name>/index.vue`
+Main list page — uses `useVbenVxeGrid` with proxy config pointing to the list API:
+```vue
+<script lang="ts" setup>
+import { Page, useVbenDrawer } from '@vben/common-ui';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getProductList, updateProduct } from '#/api';
+import { useColumns, useGridFormSchema } from './data';
+import Form from './modules/form.vue';
+
+const [FormDrawer, formDrawerApi] = useVbenDrawer({ connectedComponent: Form, destroyOnClose: true });
+const [Grid, gridApi] = useVbenVxeGrid({
+  gridOptions: {
+    columns: useColumns(onActionClick, onStatusChange),
+    height: 'auto',
+    proxyConfig: { ajax: { query: async ({ page }, formValues) => getProductList({ page: page.currentPage, pageSize: page.pageSize, ...formValues }) } },
+    rowConfig: { keyField: 'id' },
+    toolbarConfig: { refresh: true, search: true },
+  },
+  formOptions: { schema: useGridFormSchema(), submitOnChange: true },
+});
+
+function onActionClick(e) {
+  if (e.code === 'edit') formDrawerApi.setData(e.row).open();
+}
+</script>
+```
+
+---
+
+## Step 13 — Frontend: i18n Locales
+
+Update **all four** locale files:
+
+### Error codes — map each new `ErrorCode` enum value to its numeric int key
+
+`src/locales/langs/zh-CN/error.json`:
+```json
+{
+  "4250": "商品不存在",
+  "4251": "商品名称已存在"
+}
+```
+
+`src/locales/langs/en-US/error.json`:
+```json
+{
+  "4250": "Product not found",
+  "4251": "Duplicate product name"
+}
+```
+
+### UI labels — field names, table headers, drawer titles
+
+`src/locales/langs/zh-CN/system.json` — add module key under the domain object:
+```json
+{
+  "product": {
+    "title": "商品管理",
+    "list": "商品列表",
+    "name": "商品名称",
+    "price": "价格",
+    "status": "状态",
+    "createdTime": "创建时间",
+    "operation": "操作"
+  }
+}
+```
+
+`src/locales/langs/en-US/system.json` — English equivalent.
+
+### Page/menu titles (only if new route was added)
+
+`src/locales/langs/zh-CN/page.json` — add to corresponding domain:
+```json
+{
+  "system": {
+    "product": "商品管理"
+  }
+}
+```
+
+`src/locales/langs/en-US/page.json` — English equivalent.
+
+---
+
 ## Completion Checklist
 
+### Backend
 - [ ] DB fields reviewed and approved by user
 - [ ] Entity created / modified, registered in `AppDbContext`
 - [ ] Migration command reminder given
@@ -291,3 +511,13 @@ namespace WebApi.Controllers
 - [ ] Service interface + implementation created
 - [ ] DI registered in `InjectionExtension`
 - [ ] Controller created, inheriting `CustomController`
+
+### Frontend
+- [ ] Router entry added (new file or child route in existing domain file)
+- [ ] API file created/extended in `src/api/core/`, exported from `index.ts`
+- [ ] `data.ts` created with `useFormSchema`, `useGridFormSchema`, `useColumns`
+- [ ] `modules/form.vue` created (drawer create/edit form)
+- [ ] `index.vue` created (list page with VxeGrid)
+- [ ] `error.json` updated in both `zh-CN` and `en-US` with all new error codes
+- [ ] `system.json` updated in both `zh-CN` and `en-US` with all UI labels
+- [ ] `page.json` updated in both locales if a new route/menu title was added
