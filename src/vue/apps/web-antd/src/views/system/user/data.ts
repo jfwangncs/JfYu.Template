@@ -104,7 +104,8 @@ export function useColumns<T = SystemUserApi.SystemUser>(
       width: 80,
     },
     {
-      cellRender: { name: 'CellImage' },
+      align: 'center',
+      cellRender: { name: 'CellImage', props: { size: 50 } },
       field: 'avatar',
       title: $t('system.user.avatar'),
       width: 70,
