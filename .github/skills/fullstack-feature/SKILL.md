@@ -1,5 +1,5 @@
 ---
-name: dotnet-backend-feature
+name: fullstack-feature
 description: "Implement a complete full-stack feature module (backend + frontend). Use when adding a new entity, CRUD endpoints, service, or any module in src/dotnet AND the corresponding Vue frontend. Covers: DB schema design with user review, Entity + AppDbContext, Request/Response DTOs, FluentValidation, ErrorCode assignment (4000+ range), Options config, Service interface + implementation (JfYu.Data), DI registration, Controller (CustomController), Vue router, API file (requestClient), VxeGrid list page, drawer form, and i18n locales (zh-CN + en-US error/system/page JSON). Follow project conventions end-to-end."
 argument-hint: 'Feature module name, e.g. "Product" or "Order management"'
 ---
@@ -289,6 +289,7 @@ Check `src/vue/apps/web-antd/src/router/routes/modules/`.
 - **New domain** → create `<domain>.ts` and add its default export to `src/router/routes/index.ts`.
 
 Route pattern:
+
 ```ts
 {
   name: 'ProductManagement',           // PascalCase, unique
@@ -308,7 +309,7 @@ Route pattern:
 Create or extend `src/vue/apps/web-antd/src/api/core/<domain>.ts`:
 
 ```ts
-import { requestClient } from '#/api/request';
+import { requestClient } from "#/api/request";
 
 export namespace SystemProductApi {
   export interface SystemProduct {
@@ -332,14 +333,22 @@ export namespace SystemProductApi {
 }
 
 export async function getProductList(params: Record<string, any>) {
-  return requestClient.get<{ items: SystemProductApi.SystemProduct[]; total: number }>('/product', { params });
+  return requestClient.get<{
+    items: SystemProductApi.SystemProduct[];
+    total: number;
+  }>("/product", { params });
 }
 
-export async function createProduct(data: SystemProductApi.CreateProductParams) {
-  return requestClient.post('/product', data);
+export async function createProduct(
+  data: SystemProductApi.CreateProductParams,
+) {
+  return requestClient.post("/product", data);
 }
 
-export async function updateProduct(id: number, data: SystemProductApi.UpdateProductParams) {
+export async function updateProduct(
+  id: number,
+  data: SystemProductApi.UpdateProductParams,
+) {
   return requestClient.put(`/product/${id}`, data);
 }
 
@@ -349,8 +358,9 @@ export async function deleteProduct(id: number) {
 ```
 
 Then re-export from `src/api/core/index.ts`:
+
 ```ts
-export * from './<domain>';
+export * from "./<domain>";
 ```
 
 ---
@@ -360,37 +370,56 @@ export * from './<domain>';
 Create three files mirroring the role module structure:
 
 ### `src/views/<domain>/<name>/data.ts`
+
 Defines form schemas and column configs using `$t()` for all labels:
+
 ```ts
-import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import { $t } from '#/locales';
+import type { VbenFormSchema } from "#/adapter/form";
+import type { OnActionClickFn, VxeTableGridOptions } from "#/adapter/vxe-table";
+import { $t } from "#/locales";
 
 export function useFormSchema(): VbenFormSchema[] {
   return [
-    { component: 'Input', fieldName: 'name', label: $t('system.product.name'), rules: 'required' },
+    {
+      component: "Input",
+      fieldName: "name",
+      label: $t("system.product.name"),
+      rules: "required",
+    },
     // ...
   ];
 }
 
-export function useGridFormSchema(): VbenFormSchema[] { /* search bar schema */ }
+export function useGridFormSchema(): VbenFormSchema[] {
+  /* search bar schema */
+}
 
-export function useColumns(onActionClick: OnActionClickFn, onStatusChange: Function): VxeTableGridOptions['columns'] { /* table columns */ }
+export function useColumns(
+  onActionClick: OnActionClickFn,
+  onStatusChange: Function,
+): VxeTableGridOptions["columns"] {
+  /* table columns */
+}
 ```
 
 ### `src/views/<domain>/<name>/modules/form.vue`
+
 Drawer form for create/edit — uses `useVbenForm` + `useVbenDrawer`:
+
 ```vue
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { useVbenForm, useVbenDrawer } from '@vben/common-ui';
-import { createProduct, updateProduct } from '#/api';
-import { useFormSchema } from '../data';
+import { ref } from "vue";
+import { useVbenForm, useVbenDrawer } from "@vben/common-ui";
+import { createProduct, updateProduct } from "#/api";
+import { useFormSchema } from "../data";
 
-const emits = defineEmits(['success']);
+const emits = defineEmits(["success"]);
 const id = ref<number>();
 
-const [Form, formApi] = useVbenForm({ schema: useFormSchema(), showDefaultActions: false });
+const [Form, formApi] = useVbenForm({
+  schema: useFormSchema(),
+  showDefaultActions: false,
+});
 const [Drawer, drawerApi] = useVbenDrawer({
   async onConfirm() {
     const { valid } = await formApi.validate();
@@ -398,7 +427,10 @@ const [Drawer, drawerApi] = useVbenDrawer({
     const values = await formApi.getValues();
     drawerApi.lock();
     (id.value ? updateProduct(id.value, values) : createProduct(values))
-      .then(() => { emits('success'); drawerApi.close(); })
+      .then(() => {
+        emits("success");
+        drawerApi.close();
+      })
       .catch(() => drawerApi.unlock());
   },
   async onOpenChange(isOpen) {
@@ -406,36 +438,53 @@ const [Drawer, drawerApi] = useVbenDrawer({
     formApi.resetForm();
     const data = drawerApi.getData<SystemProductApi.SystemProduct>();
     id.value = data?.id;
-    if (data) { await nextTick(); formApi.setValues(data); }
+    if (data) {
+      await nextTick();
+      formApi.setValues(data);
+    }
   },
 });
 </script>
 ```
 
 ### `src/views/<domain>/<name>/index.vue`
+
 Main list page — uses `useVbenVxeGrid` with proxy config pointing to the list API:
+
 ```vue
 <script lang="ts" setup>
-import { Page, useVbenDrawer } from '@vben/common-ui';
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getProductList, updateProduct } from '#/api';
-import { useColumns, useGridFormSchema } from './data';
-import Form from './modules/form.vue';
+import { Page, useVbenDrawer } from "@vben/common-ui";
+import { useVbenVxeGrid } from "#/adapter/vxe-table";
+import { getProductList, updateProduct } from "#/api";
+import { useColumns, useGridFormSchema } from "./data";
+import Form from "./modules/form.vue";
 
-const [FormDrawer, formDrawerApi] = useVbenDrawer({ connectedComponent: Form, destroyOnClose: true });
+const [FormDrawer, formDrawerApi] = useVbenDrawer({
+  connectedComponent: Form,
+  destroyOnClose: true,
+});
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(onActionClick, onStatusChange),
-    height: 'auto',
-    proxyConfig: { ajax: { query: async ({ page }, formValues) => getProductList({ page: page.currentPage, pageSize: page.pageSize, ...formValues }) } },
-    rowConfig: { keyField: 'id' },
+    height: "auto",
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues) =>
+          getProductList({
+            page: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
+          }),
+      },
+    },
+    rowConfig: { keyField: "id" },
     toolbarConfig: { refresh: true, search: true },
   },
   formOptions: { schema: useGridFormSchema(), submitOnChange: true },
 });
 
 function onActionClick(e) {
-  if (e.code === 'edit') formDrawerApi.setData(e.row).open();
+  if (e.code === "edit") formDrawerApi.setData(e.row).open();
 }
 </script>
 ```
@@ -449,6 +498,7 @@ Update **all four** locale files:
 ### Error codes — map each new `ErrorCode` enum value to its numeric int key
 
 `src/locales/langs/zh-CN/error.json`:
+
 ```json
 {
   "4250": "商品不存在",
@@ -457,6 +507,7 @@ Update **all four** locale files:
 ```
 
 `src/locales/langs/en-US/error.json`:
+
 ```json
 {
   "4250": "Product not found",
@@ -467,6 +518,7 @@ Update **all four** locale files:
 ### UI labels — field names, table headers, drawer titles
 
 `src/locales/langs/zh-CN/system.json` — add module key under the domain object:
+
 ```json
 {
   "product": {
@@ -486,6 +538,7 @@ Update **all four** locale files:
 ### Page/menu titles (only if new route was added)
 
 `src/locales/langs/zh-CN/page.json` — add to corresponding domain:
+
 ```json
 {
   "system": {
@@ -501,6 +554,7 @@ Update **all four** locale files:
 ## Completion Checklist
 
 ### Backend
+
 - [ ] DB fields reviewed and approved by user
 - [ ] Entity created / modified, registered in `AppDbContext`
 - [ ] Migration command reminder given
@@ -513,6 +567,7 @@ Update **all four** locale files:
 - [ ] Controller created, inheriting `CustomController`
 
 ### Frontend
+
 - [ ] Router entry added (new file or child route in existing domain file)
 - [ ] API file created/extended in `src/api/core/`, exported from `index.ts`
 - [ ] `data.ts` created with `useFormSchema`, `useGridFormSchema`, `useColumns`

@@ -1,5 +1,5 @@
 ---
-name: dotnet-backend-feature
+name: fullstack-feature
 description: "Implement a complete full-stack feature module (backend + frontend). Use when adding a new entity, CRUD endpoints, service, or any module in src/dotnet AND the corresponding Vue frontend. Covers: DB schema design with user review, Entity + AppDbContext, Request/Response DTOs, FluentValidation, ErrorCode assignment (4000+ range), Options config, Service interface + implementation (JfYu.Data), DI registration, Controller (CustomController), Vue router, API file (requestClient), VxeGrid list page, drawer form, and i18n locales (zh-CN + en-US error/system/page JSON). Follow project conventions end-to-end."
 argument-hint: 'Feature module name, e.g. "Product" or "Order management"'
 ---
