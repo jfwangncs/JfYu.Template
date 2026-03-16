@@ -63,20 +63,21 @@ setupVbenVxeTable({
         const { column, row } = params;
         const src = row[column.field];
         const size = props?.size ?? 36;
+        const placeholderSize = Math.round(size * 0.6);
         if (!src) {
           return h(
             'div',
             {
               style: {
-                width: `${size}px`,
-                height: `${size}px`,
+                width: `${placeholderSize}px`,
+                height: `${placeholderSize}px`,
                 borderRadius: '50%',
                 background: '#f0f0f0',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#bbb',
-                fontSize: '18px',
+                fontSize: `${Math.round(placeholderSize * 0.5)}px`,
               },
             },
             '👤',
@@ -86,7 +87,26 @@ setupVbenVxeTable({
           src,
           width: size,
           height: size,
-          style: { borderRadius: '50%', objectFit: 'cover' },
+          style: {
+            borderRadius: '50%',
+            display: 'block',
+            height: `${size}px`,
+            objectFit: 'cover',
+            width: `${size}px`,
+          },
+          previewMask: () =>
+            h(IconifyIcon, {
+              icon: 'ant-design:eye-outlined',
+              style: { color: '#fff', fontSize: '16px' },
+            }),
+          fallback:
+            'data:image/svg+xml,' +
+            encodeURIComponent(
+              `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">` +
+                `<circle cx="${size / 2}" cy="${size / 2}" r="${placeholderSize / 2}" fill="#f0f0f0"/>` +
+                `<text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="${Math.round(placeholderSize * 0.45)}" fill="#bbb">👤</text>` +
+                `</svg>`,
+            ),
           ...objectOmit(props ?? {}, ['size']),
         });
       },
