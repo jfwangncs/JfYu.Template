@@ -1,11 +1,14 @@
 ﻿using JfYu.Data.Context;
+using JfYu.Data.Extension;
 using JfYu.Data.Service;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using WebApi.Attributes;
 using WebApi.Constants;
 using WebApi.Entity;
+using WebApi.Model;
 using WebApi.Model.Permission;
 using WebApi.Services.Interfaces;
 
@@ -60,9 +63,9 @@ namespace WebApi.Services
                 {
                     _context.Permissions.Add(new Permission
                     {
-                        Code = item.Code, 
+                        Code = item.Code,
                         Type = item.Type,
-                        ParentId = parentId, 
+                        ParentId = parentId,
                     });
                     _context.SaveChanges();
                     existingCodes.Add(item.Code);
@@ -89,9 +92,9 @@ namespace WebApi.Services
                 {
                     result.Add(new ScannedPermission
                     {
-                        Code = menuAttr.Code, 
+                        Code = menuAttr.Code,
                         Type = menuAttr.Type,
-                        ParentCode = menuAttr.ParentCode, 
+                        ParentCode = menuAttr.ParentCode,
                     });
                 }
 
@@ -103,7 +106,7 @@ namespace WebApi.Services
                     {
                         result.Add(new ScannedPermission
                         {
-                            Code = btnAttr.Code, 
+                            Code = btnAttr.Code,
                             Type = btnAttr.Type,
                             ParentCode = btnAttr.ParentCode ?? menuAttr?.Code,
                         });
@@ -116,6 +119,32 @@ namespace WebApi.Services
                 .GroupBy(x => x.Code)
                 .Select(g => g.First())
                 .ToList();
+        }
+
+        public async Task<PagedResult<PermissionResponse>> GetPagedAsync(QueryRequest query)
+        {
+            var q = _readonlyContext.Permissions.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.SearchKey))
+                q = q.Where(p => p.Name.Contains(query.SearchKey) || p.Code.Contains(query.SearchKey));
+
+            if (query.Status.HasValue)
+                q = q.Where(p => p.Status == query.Status.Value);
+
+            if (query.StartTime.HasValue)
+                q = q.Where(p => p.CreatedTime >= query.StartTime.Value);
+
+            if (query.EndTime.HasValue)
+                q = q.Where(p => p.CreatedTime <= query.EndTime.Value);
+
+            q = q.OrderBy(p => p.Sort).ThenBy(p => p.Id);
+
+            var paged = await q.ToPagedAsync(q => q.Adapt<IEnumerable<PermissionResponse>>(), query.PageIndex, query.PageSize);
+            return new PagedResult<PermissionResponse>
+            {
+                Items = paged.Data?.ToList() ?? [],
+                Total = paged.TotalCount
+            };
         }
     }
 }

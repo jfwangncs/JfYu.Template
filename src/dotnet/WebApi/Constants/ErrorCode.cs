@@ -71,6 +71,12 @@ namespace WebApi.Constants
         [Description("Duplicate role name.")]
         DuplicateRole,
         #endregion
+
+        #region Permission
+        [Description("Permission not found.")]
+        PermissionNotFound = 4250,
+        #endregion
+
         //internal service error
         [Description("The product is out of stock")]
         OutOfSotck = 4300

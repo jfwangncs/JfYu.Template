@@ -9,5 +9,10 @@
         public const string RoleGet = "Role:get";
         public const string RoleEdit = "Role:edit";
         public const string RoleAssign = "Role:assign";
+
+        public const string Permission = "Permission";
+        public const string PermissionGet = "Permission:get";
+        public const string PermissionEdit = "Permission:edit";
+        public const string PermissionSync = "Permission:sync";
     }
 }

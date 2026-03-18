@@ -30,6 +30,15 @@ const routes: RouteRecordRaw[] = [
           title: $t('page.system.role'),
         },
       },
+      {
+        name: 'PermissionManagement',
+        path: '/system/permission',
+        component: () => import('#/views/system/permission/index.vue'),
+        meta: {
+          icon: 'lucide:key',
+          title: $t('page.system.permission'),
+        },
+      },
     ],
   },
 ];

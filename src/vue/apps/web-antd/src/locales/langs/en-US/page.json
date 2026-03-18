@@ -15,6 +15,7 @@
   "system": {
     "title": "System Management",
     "user": "User Management",
-    "role": "Role Management"
+    "role": "Role Management",
+    "permission": "Permission Management"
   }
 }

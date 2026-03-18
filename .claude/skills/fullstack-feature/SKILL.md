@@ -135,6 +135,7 @@ Open `src/dotnet/WebApi/Constants/ErrorCode.cs`.
 | 4100–4149 | Auth                  |
 | 4150–4199 | User                  |
 | 4200–4249 | Role                  |
+| 4250–4299 | Permission            |
 | 4300+     | Other / unassigned    |
 
 **Decision logic**:
@@ -383,7 +384,10 @@ Route pattern:
 
 ## Step 12 — Frontend: API File
 
-Create or extend `src/vue/apps/web-antd/src/api/core/<domain>.ts`:
+Create `src/vue/apps/web-antd/src/api/system/<domain>.ts`:
+
+> **Note**: API files for features live in `src/api/system/`, **not** `src/api/core/`.
+> Export chain: `src/api/system/<domain>.ts` → `src/api/system/index.ts` → `src/api/core/index.ts` → `src/api/index.ts`
 
 ```ts
 import { requestClient } from "#/api/request";
@@ -434,7 +438,7 @@ export async function deleteProduct(id: number) {
 }
 ```
 
-Then re-export from `src/api/core/index.ts`:
+Then re-export from `src/api/system/index.ts`:
 
 ```ts
 export * from "./<domain>";
@@ -528,11 +532,20 @@ const [Drawer, drawerApi] = useVbenDrawer({
 
 Main list page — uses `useVbenVxeGrid` with proxy config pointing to the list API:
 
+> **Critical**: Always use `<Page auto-content-height>` on list pages that use `height: 'auto'` on VxeGrid.
+> Without `auto-content-height`, the grid has no fixed-height parent and enters an infinite ResizeObserver
+> feedback loop, causing `vxe-table--row-expanded-wrapper` height to grow endlessly.
+
+> **Icons**: Use named Lucide icon components from `@vben/icons` (e.g. `RotateCw`, `Plus`).
+> Do NOT import from `@ant-design/icons-vue` — that package is not available in this project.
+
 ```vue
 <script lang="ts" setup>
 import { Page, useVbenDrawer } from "@vben/common-ui";
+import { Plus } from "@vben/icons";
+import { Button } from "ant-design-vue";
 import { useVbenVxeGrid } from "#/adapter/vxe-table";
-import { getProductList, updateProduct } from "#/api";
+import { getProductList } from "#/api";
 import { useColumns, useGridFormSchema } from "./data";
 import Form from "./modules/form.vue";
 
@@ -544,18 +557,25 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(onActionClick, onStatusChange),
     height: "auto",
+    keepSource: true,
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) =>
           getProductList({
-            page: page.currentPage,
+            pageIndex: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
           }),
       },
     },
     rowConfig: { keyField: "id" },
-    toolbarConfig: { refresh: true, search: true },
+    toolbarConfig: {
+      custom: true,
+      export: false,
+      refresh: true,
+      search: true,
+      zoom: false,
+    },
   },
   formOptions: { schema: useGridFormSchema(), submitOnChange: true },
 });
@@ -563,7 +583,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
 function onActionClick(e) {
   if (e.code === "edit") formDrawerApi.setData(e.row).open();
 }
+function onRefresh() {
+  gridApi.query();
+}
 </script>
+
+<template>
+  <Page auto-content-height>
+    <FormDrawer @success="onRefresh" />
+    <Grid>
+      <template #toolbar-actions>
+        <Button type="primary" @click="formDrawerApi.open()">
+          <Plus class="size-5" />
+          {{ $t("common.create") }}
+        </Button>
+      </template>
+    </Grid>
+  </Page>
+</template>
 ```
 
 ---

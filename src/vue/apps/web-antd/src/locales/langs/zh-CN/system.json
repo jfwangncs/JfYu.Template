@@ -33,6 +33,23 @@
     "permissions": "权限",
     "setPermissions": "授权"
   },
+  "permission": {
+    "title": "权限管理",
+    "list": "权限列表",
+    "name": "权限名称",
+    "id": "权限ID",
+    "code": "权限代码",
+    "type": "类型",
+    "sort": "排序",
+    "icon": "图标",
+    "description": "描述",
+    "status": "状态",
+    "createdTime": "创建时间",
+    "operation": "操作",
+    "codeOrName": "代码/名称",
+    "sync": "同步权限",
+    "syncSuccess": "权限同步成功"
+  },
   "common": {
     "prefix-change": "确认将",
     "mid-change": "的",

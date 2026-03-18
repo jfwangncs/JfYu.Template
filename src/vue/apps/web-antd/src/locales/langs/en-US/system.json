@@ -33,6 +33,23 @@
     "permissions": "Permissions",
     "setPermissions": "Permissions"
   },
+  "permission": {
+    "title": "Permission Management",
+    "list": "Permission List",
+    "name": "Permission Name",
+    "id": "Permission ID",
+    "code": "Permission Code",
+    "type": "Type",
+    "sort": "Sort",
+    "icon": "Icon",
+    "description": "Description",
+    "status": "Status",
+    "createdTime": "Creation Time",
+    "operation": "Operation",
+    "codeOrName": "Code / Name",
+    "sync": "Sync Permissions",
+    "syncSuccess": "Permissions synced successfully"
+  },
   "common": {
     "prefix-change": "Confirm to change",
     "mid-change": "",

@@ -18,5 +18,6 @@
   "4111": "Unsupported login method",
   "4200": "Role not found",
   "4201": "Duplicate role name",
+  "4250": "Permission not found",
   "4300": "The product is out of stock"
 }
