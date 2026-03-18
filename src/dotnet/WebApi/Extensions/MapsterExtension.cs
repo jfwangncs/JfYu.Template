@@ -1,7 +1,8 @@
-using Mapster;
+﻿using Mapster;
 using WebApi.Entity;
 using WebApi.Model.Request;
 using WebApi.Model.Response;
+using WebApi.Model.Role;
 
 namespace WebApi.Extensions
 {
@@ -11,8 +12,7 @@ namespace WebApi.Extensions
         {
             TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
             //#if (EnableRBAC)
-            TypeAdapterConfig<UpdateRoleRequest, Role>.NewConfig().IgnoreNullValues(true);
-            TypeAdapterConfig<UpdatePermissionRequest, Permission>.NewConfig().IgnoreNullValues(true);
+            TypeAdapterConfig<UpdateRoleRequest, Role>.NewConfig().IgnoreNullValues(true); 
             TypeAdapterConfig<UpdateUserRequest, User>.NewConfig().IgnoreNullValues(true);
             TypeAdapterConfig<User, UserResponse>.ForType().Map(q => q.Roles, q => q.Roles.Select(q => q.Name).ToList());
             //#endif

@@ -1,10 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Constants;
 using WebApi.Entity;
-using WebApi.Model.Request;
+using WebApi.Model;
+using WebApi.Model.Role;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers

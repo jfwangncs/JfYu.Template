@@ -1,4 +1,4 @@
-using JfYu.Data.Context;
+﻿using JfYu.Data.Context;
 using JfYu.Data.Extension;
 using JfYu.Data.Service;
 using JfYu.WeChat;
@@ -9,8 +9,8 @@ using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Exceptions;
 using WebApi.Model;
-using WebApi.Model.Request;
 using WebApi.Model.Response;
+using WebApi.Model.User;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Services

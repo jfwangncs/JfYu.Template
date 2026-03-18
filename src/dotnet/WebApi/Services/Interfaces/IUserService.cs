@@ -1,8 +1,8 @@
-using JfYu.Data.Service;
+﻿using JfYu.Data.Service;
 using WebApi.Entity;
 using WebApi.Model;
-using WebApi.Model.Request;
 using WebApi.Model.Response;
+using WebApi.Model.User;
 
 namespace WebApi.Services.Interfaces
 {

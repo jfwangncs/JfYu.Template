@@ -1,4 +1,4 @@
-
+﻿
 using JfYu.WeChat;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +9,8 @@ using System.Security.Claims;
 using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Model;
-using WebApi.Model.Request;
 using WebApi.Model.Response;
+using WebApi.Model.User;
 using WebApi.Options;
 using WebApi.Services;
 using WebApi.Services.Interfaces;

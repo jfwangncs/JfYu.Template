@@ -41,6 +41,11 @@
     "source.organizeImports": "never"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp",
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false
+  },
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

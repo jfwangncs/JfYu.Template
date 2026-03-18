@@ -1,4 +1,4 @@
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenTelemetry.Resources;
@@ -6,8 +6,10 @@ using System.ComponentModel.DataAnnotations;
 using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Exceptions;
+using WebApi.Model;
 using WebApi.Model.Request;
 using WebApi.Model.Response;
+using WebApi.Model.User;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers

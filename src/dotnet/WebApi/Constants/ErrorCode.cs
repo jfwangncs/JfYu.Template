@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace WebApi.Constants
 {
@@ -7,7 +7,8 @@ namespace WebApi.Constants
         //unexpected  error 
         [Description("System error.")]
         SystemError = 1000,
-
+        [Description("No Permission.")]
+        NoPermission,
         //client error
         [Description("Validation error.")]
         ValidationError = 4000,

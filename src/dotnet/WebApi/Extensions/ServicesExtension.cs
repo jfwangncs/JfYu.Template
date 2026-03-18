@@ -1,4 +1,4 @@
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Mapster;
@@ -34,7 +34,7 @@ using WebApi.Constants;
 using WebApi.Exceptions;
 using WebApi.Model;
 //#if (EnableJWT)
-using WebApi.Options; 
+using WebApi.Options;
 using WebApi.Services;
 using WebApi.Services.Interfaces;
 //#endif
@@ -44,7 +44,7 @@ namespace WebApi.Extensions
     public static class ServicesExtension
     {
         public static readonly string ServiceName = Environment.GetEnvironmentVariable("OTEL_SERVICE_NAME") ?? "WebApi";
-        
+
         public static IServiceCollection AddCustomCoreAPI(this IServiceCollection services)
         {
             services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -66,7 +66,7 @@ namespace WebApi.Extensions
 
             }).AddJsonOptions(options =>
             {
-                options.JsonSerializerOptions.ReferenceHandler=ReferenceHandler.IgnoreCycles;
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
@@ -314,7 +314,7 @@ namespace WebApi.Extensions
             });
             return services;
         }
-     
+
         public static void UseCustomExceptionHandler(this WebApplication app)
         {
             app.UseExceptionHandler(exceptionHandlerApp =>
@@ -354,6 +354,16 @@ namespace WebApi.Extensions
                     }
                 });
             });
+        }
+
+        public static void UsePermissionSync(this WebApplication app)
+        {
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var syncService = scope.ServiceProvider.GetRequiredService<IPermissionService>();
+                syncService.SyncAsync();
+            }
         }
     }
 }

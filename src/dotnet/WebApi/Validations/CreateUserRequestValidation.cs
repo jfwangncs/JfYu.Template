@@ -1,5 +1,5 @@
-using FluentValidation;
-using WebApi.Model.Request;
+﻿using FluentValidation;
+using WebApi.Model.User;
 
 namespace WebApi.Validations
 {

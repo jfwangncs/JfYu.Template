@@ -1,4 +1,4 @@
-namespace WebApi.Model.Request
+﻿namespace WebApi.Model
 {
   public class QueryRequest
   {

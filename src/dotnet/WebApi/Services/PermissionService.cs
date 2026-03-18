@@ -1,62 +1,130 @@
+﻿using JfYu.Data.Context;
+using JfYu.Data.Service;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using WebApi.Attributes;
+using WebApi.Constants;
 using WebApi.Entity;
-using WebApi.Model.Request;
+using WebApi.Model.Permission;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Services
 {
-    public class PermissionService(AppDbContext dbContext) : IPermissionService
+    public class PermissionService(AppDbContext context, ReadonlyDBContext<AppDbContext> readonlyDBContext, ILogger<Permission> _logger) : Service<Permission, AppDbContext>(context, readonlyDBContext), IPermissionService
     {
-        private readonly AppDbContext _dbContext = dbContext;
-
-        public async Task<List<Permission>> GetAllAsync()
+        public void SyncAsync()
         {
-            return await _dbContext.Permissions.ToListAsync();
-        }
+            var scanned = ScanAttributes();
+            var existingCodes = (_context.Permissions.Select(p => p.Code).ToList()).ToHashSet();
+            _logger.LogInformation("Permission sync started, scanned {Count} attributes, {Existing} existing in db", scanned.Count, existingCodes.Count);
 
-        public async Task<Permission?> GetByIdAsync(long id)
-        {
-            return await _dbContext.Permissions.FindAsync(id);
-        }
+            var allParentCodes = scanned.Where(s => s.ParentCode != null).Select(s => s.ParentCode).OfType<string>().Distinct();
 
-        public async Task<Permission> CreateAsync(CreatePermissionRequest request)
-        {
-            var permission = new Permission
+            foreach (var parentCode in allParentCodes)
             {
-                Name = request.Name,
-                Code = request.Code,
-                Description = request.Description
-            };
+                if (existingCodes.Contains(parentCode))
+                    continue;
+                if (scanned.Any(s => s.Code == parentCode))
+                    continue;
+                try
+                {
+                    _context.Permissions.Add(new Permission
+                    {
+                        Code = parentCode,
+                        Name = parentCode,
+                        Type = PermissionType.Menu,
+                    });
+                    _context.SaveChanges();
+                    existingCodes.Add(parentCode);
+                }
+                catch (DbUpdateException)
+                {
+                    _context.ChangeTracker.Clear();
+                    existingCodes.Add(parentCode);
+                }
+            }
 
-            _dbContext.Permissions.Add(permission);
-            await _dbContext.SaveChangesAsync();
-            return permission;
+            foreach (var item in scanned)
+            {
+                if (existingCodes.Contains(item.Code))
+                    continue;
+                int? parentId = null;
+                if (item.ParentCode != null)
+                {
+                    var parent = _context.Permissions.FirstOrDefault(p => p.Code == item.ParentCode);
+                    parentId = parent?.Id;
+                }
+
+                try
+                {
+                    _context.Permissions.Add(new Permission
+                    {
+                        Code = item.Code,
+                        Name = item.Name,
+                        Type = item.Type,
+                        ParentId = parentId,
+                        Icon = item.Icon,
+                        Sort = item.Sort,
+                    });
+                    _context.SaveChanges();
+                    existingCodes.Add(item.Code);
+                }
+                catch (DbUpdateException)
+                {
+                    _context.ChangeTracker.Clear();
+                    existingCodes.Add(item.Code);
+                }
+            }
+            _logger.LogInformation("Permission sync completed");
         }
-
-        public async Task<Permission?> UpdateAsync(long id, UpdatePermissionRequest request)
+        private List<ScannedPermission> ScanAttributes()
         {
-            var permission = await _dbContext.Permissions.FindAsync(id);
-            if (permission == null)
-                return null;
+            var result = new List<ScannedPermission>();
+            var controllers = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => typeof(ControllerBase).IsAssignableFrom(t) && !t.IsAbstract);
 
-            permission.Name = request.Name;
-            permission.Code = request.Code;
-            permission.Description = request.Description;
-            permission.IsActive = request.IsActive;
+            foreach (var ctrl in controllers)
+            {
+                // Menu
+                var menuAttr = ctrl.GetCustomAttribute<PermissionAttribute>();
+                if (menuAttr != null)
+                {
+                    result.Add(new ScannedPermission
+                    {
+                        Code = menuAttr.Code,
+                        Name = menuAttr.Name,
+                        Type = menuAttr.Type,
+                        ParentCode = menuAttr.ParentCode,
+                        Icon = menuAttr.Icon,
+                        Sort = menuAttr.Sort,
+                    });
+                }
 
-            await _dbContext.SaveChangesAsync();
-            return permission;
-        }
+                // Button 
+                foreach (var method in ctrl.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
+                {
+                    var btnAttr = method.GetCustomAttribute<PermissionAttribute>();
+                    if (btnAttr != null)
+                    {
+                        result.Add(new ScannedPermission
+                        {
+                            Code = btnAttr.Code,
+                            Name = btnAttr.Name,
+                            Type = btnAttr.Type,
+                            ParentCode = btnAttr.ParentCode,
+                            Icon = btnAttr.Icon,
+                            Sort = btnAttr.Sort,
+                        });
+                    }
+                }
+            }
 
-        public async Task<bool> DeleteAsync(long id)
-        {
-            var permission = await _dbContext.Permissions.FindAsync(id);
-            if (permission == null)
-                return false;
-
-            _dbContext.Permissions.Remove(permission);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            // 去重
+            return result
+                .GroupBy(x => x.Code)
+                .Select(g => g.First())
+                .ToList();
         }
     }
 }

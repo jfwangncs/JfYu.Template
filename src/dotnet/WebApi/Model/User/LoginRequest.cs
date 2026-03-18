@@ -1,6 +1,6 @@
-using WebApi.Constants;
+﻿using WebApi.Constants;
 
-namespace WebApi.Model.Request
+namespace WebApi.Model.User
 {
     public class LoginRequest
     {
