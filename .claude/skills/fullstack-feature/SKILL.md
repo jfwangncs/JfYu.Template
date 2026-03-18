@@ -67,14 +67,26 @@ dotnet ef database update --project src/dotnet/WebApi
 
 ## Step 3 — Create DTOs
 
-Create files in `src/dotnet/WebApi/Model/`:
+Create a **module folder** under `src/dotnet/WebApi/Model/<Name>/` and place all DTOs there:
 
-| File                              | Purpose                                       |
-| --------------------------------- | --------------------------------------------- |
-| `Request/Create<Name>Request.cs`  | Fields for creation                           |
-| `Request/Update<Name>Request.cs`  | Fields for update (Id + changeable fields)    |
-| `Request/Feature<Name>Request.cs` | Fields for business logic                     |
-| `Response/<Name>Response.cs`      | Fields returned to client (no sensitive data) |
+| File                                   | Purpose                                       |
+| -------------------------------------- | --------------------------------------------- |
+| `Model/<Name>/Create<Name>Request.cs`  | Fields for creation                           |
+| `Model/<Name>/Update<Name>Request.cs`  | Fields for update (Id + changeable fields)    |
+| `Model/<Name>/Feature<Name>Request.cs` | Fields for business logic (if needed)         |
+| `Model/<Name>/<Name>Response.cs`       | Fields returned to client (no sensitive data) |
+
+Example for a `Product` module:
+
+```
+Model/
+  Product/
+    CreateProductRequest.cs
+    UpdateProductRequest.cs
+    ProductResponse.cs
+```
+
+Namespace follows the folder: `WebApi.Model.Product`.
 
 Use plain C# classes — no inheritance needed. Nullable optional fields.
 
@@ -82,11 +94,15 @@ Use plain C# classes — no inheritance needed. Nullable optional fields.
 
 ## Step 4 — Create Validations
 
-Create Validations for Requests `src/dotnet/WebApi/Validations/Create<Name>RequestValidation.cs` and `Update<Name>RequestValidation.cs` and `Request/Feature<Name>Request.cs`:
+Create validation files in `src/dotnet/WebApi/Validations/` for each request DTO:
+
+- `Create<Name>RequestValidation.cs`
+- `Update<Name>RequestValidation.cs`
+- `Feature<Name>RequestValidation.cs` (if applicable)
 
 ```csharp
 using FluentValidation;
-using WebApi.Model.Request;
+using WebApi.Model.Product;
 
 namespace WebApi.Validations
 {
@@ -100,6 +116,8 @@ namespace WebApi.Validations
     }
 }
 ```
+
+Use the module namespace `WebApi.Model.<Name>` matching the DTO folder.
 
 Validators are **auto-discovered** — no manual registration needed.
 
@@ -244,7 +262,7 @@ Create `Controllers/<Name>Controller.cs`:
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Constants;
-using WebApi.Model.Request;
+using WebApi.Model.Product;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers
