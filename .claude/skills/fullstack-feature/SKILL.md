@@ -254,13 +254,44 @@ services.AddScoped<IProductService, ProductService>();
 
 ---
 
-## Step 9 — Create Controller
+## Step 9 — Define Permission Codes
 
-Create `Controllers/<Name>Controller.cs`:
+Open `src/dotnet/WebApi/Constants/PermissionCodes.cs` and add constants for the new module.
+
+**Convention**:
+- Module entry (Menu) → `public const string <Name> = "<name>";`
+- Each action → `public const string <Name><Action> = "<Name>:<action>";`
 
 ```csharp
-using Microsoft.AspNetCore.Authorization;
+public const string Product = "Product";
+public const string ProductGet = "Product:get";
+public const string ProductAdd = "Product:add";
+public const string ProductEdit = "Product:edit";
+public const string ProductDelete = "Product:delete";
+```
+
+**Parent code** determines where this module appears in the permission tree:
+
+- Check existing top-level constants (e.g., `System = "system"`, `Dashboard = "dashboard"`).
+- If the module clearly belongs to an existing parent → use it directly.
+- If uncertain or no suitable parent exists → **ask the user** before proceeding.
+
+> **⏸ CHECKPOINT — Confirm parent code with user if not obvious.**
+> Ask: "This module's menu permission will be placed under `PermissionCodes.System`. Is that correct, or should it be under a different parent?"
+
+---
+
+## Step 10 — Create Controller
+
+Create `Controllers/<Name>Controller.cs`.
+
+- The **class** gets `[Permission(PermissionCodes.<Name>, PermissionType.Menu, parentCode: PermissionCodes.<Parent>)]` — this registers it as a menu entry.
+- Each **action method** gets `[Permission(PermissionCodes.<Name><Action>)]` — type defaults to `Button`.
+
+```csharp
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using WebApi.Attributes;
 using WebApi.Constants;
 using WebApi.Model.Product;
 using WebApi.Services.Interfaces;
@@ -269,12 +300,13 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Permission(PermissionCodes.Product, PermissionType.Menu, parentCode: PermissionCodes.System)]
     public class ProductController(IProductService productService) : CustomController
     {
         private readonly IProductService _productService = productService;
 
         [HttpGet]
+        [Permission(PermissionCodes.ProductGet)]
         public async Task<IActionResult> GetAllAsync([FromQuery] QueryRequest query)
         {
             var result = await _productService.GetPagedAsync(query);
@@ -282,6 +314,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Permission(PermissionCodes.ProductGet)]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var item = await _productService.GetOneAsync(q => q.Id == id);
@@ -291,7 +324,8 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateProductRequest request)
+        [Permission(PermissionCodes.ProductAdd)]
+        public async Task<IActionResult> CreateAsync([FromBody][Required] CreateProductRequest request)
         {
             // check duplicates, adapt, save
             await _productService.AddAsync(item);
@@ -299,7 +333,8 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateProductRequest request)
+        [Permission(PermissionCodes.ProductEdit)]
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody][Required] UpdateProductRequest request)
         {
             var item = await _productService.GetOneAsync(q => q.Id == id);
             if (item == null)
@@ -316,14 +351,13 @@ namespace WebApi.Controllers
 
 - Always return `IActionResult` — never `ActionResult<T>` or raw objects.
 - Use `Ok<T>(data)` / `Ok()` / `BadRequest(ErrorCode)` from `CustomController`.
-- Add `[Authorize(Roles = "Admin")]` for admin-only actions.
+- Do NOT use `[Authorize]` directly — `[Permission]` handles authentication + authorization.
 - All methods must be async — no `.Result` or `.Wait()`.
+- Add `[Required]` on `[FromBody]` parameters.
 
 ---
 
----
-
-## Step 10 — Frontend: Router
+## Step 11 — Frontend: Router
 
 Check `src/vue/apps/web-antd/src/router/routes/modules/`.
 
@@ -346,7 +380,7 @@ Route pattern:
 
 ---
 
-## Step 11 — Frontend: API File
+## Step 12 — Frontend: API File
 
 Create or extend `src/vue/apps/web-antd/src/api/core/<domain>.ts`:
 
@@ -407,7 +441,7 @@ export * from "./<domain>";
 
 ---
 
-## Step 12 — Frontend: Views (based on Role module template)
+## Step 13 — Frontend: Views (based on Role module template)
 
 Create three files mirroring the role module structure:
 
@@ -533,7 +567,7 @@ function onActionClick(e) {
 
 ---
 
-## Step 13 — Frontend: i18n Locales
+## Step 14 — Frontend: i18n Locales
 
 Update **all four** locale files:
 
@@ -606,7 +640,8 @@ Update **all four** locale files:
 - [ ] Options class + `OptionsExtension` registration added (if needed)
 - [ ] Service interface + implementation created
 - [ ] DI registered in `InjectionExtension`
-- [ ] Controller created, inheriting `CustomController`
+- [ ] Permission codes added to `PermissionCodes.cs` (module + actions), parent confirmed with user
+- [ ] Controller created, inheriting `CustomController`, with `[Permission]` on class and all actions
 
 ### Frontend
 
