@@ -259,6 +259,7 @@ services.AddScoped<IProductService, ProductService>();
 Open `src/dotnet/WebApi/Constants/PermissionCodes.cs` and add constants for the new module.
 
 **Convention**:
+
 - Module entry (Menu) → `public const string <Name> = "<name>";`
 - Each action → `public const string <Name><Action> = "<Name>:<action>";`
 
