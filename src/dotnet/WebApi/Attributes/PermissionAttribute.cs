@@ -8,38 +8,17 @@ using WebApi.Model;
 
 namespace WebApi.Attributes
 {
-    public class PermissionAttribute : Attribute
+    public class PermissionAttribute(string code, PermissionType type = PermissionType.Button, string? parentCode = null) : Attribute
     {
-        public string Code { get; }
-        public string Name { get; }
-        public PermissionType Type { get; }
-        public string? ParentCode { get; }
-        public string? ParentName { get; }
-        public string? Icon { get; }
-        public int Sort { get; }
+        public string Code { get; } = code;
+        public PermissionType Type { get; } = type;
+        public string? ParentCode { get; } = parentCode;
 
-        public PermissionAttribute(
-            string code,
-            string name,
-            PermissionType type = PermissionType.Button,
-            string? parentCode = null,
-            string? parentName = null,
-            string? icon = null,
-            int sort = 0)
-        {
-            Code = code;
-            Name = name;
-            Type = type;
-            ParentCode = parentCode;
-            ParentName = parentName;
-            Icon = icon;
-            Sort = sort;
-        }
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             // skip [AllowAnonymous]
             if (context.ActionDescriptor.EndpointMetadata.Any(m => m is AllowAnonymousAttribute))
-                return;            
+                return; 
 
             var user = context.HttpContext.User;
             var options = context.HttpContext.RequestServices

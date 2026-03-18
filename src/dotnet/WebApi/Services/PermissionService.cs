@@ -60,12 +60,9 @@ namespace WebApi.Services
                 {
                     _context.Permissions.Add(new Permission
                     {
-                        Code = item.Code,
-                        Name = item.Name,
+                        Code = item.Code, 
                         Type = item.Type,
-                        ParentId = parentId,
-                        Icon = item.Icon,
-                        Sort = item.Sort,
+                        ParentId = parentId, 
                     });
                     _context.SaveChanges();
                     existingCodes.Add(item.Code);
@@ -92,12 +89,9 @@ namespace WebApi.Services
                 {
                     result.Add(new ScannedPermission
                     {
-                        Code = menuAttr.Code,
-                        Name = menuAttr.Name,
+                        Code = menuAttr.Code, 
                         Type = menuAttr.Type,
-                        ParentCode = menuAttr.ParentCode,
-                        Icon = menuAttr.Icon,
-                        Sort = menuAttr.Sort,
+                        ParentCode = menuAttr.ParentCode, 
                     });
                 }
 
@@ -109,12 +103,9 @@ namespace WebApi.Services
                     {
                         result.Add(new ScannedPermission
                         {
-                            Code = btnAttr.Code,
-                            Name = btnAttr.Name,
+                            Code = btnAttr.Code, 
                             Type = btnAttr.Type,
-                            ParentCode = btnAttr.ParentCode,
-                            Icon = btnAttr.Icon,
-                            Sort = btnAttr.Sort,
+                            ParentCode = btnAttr.ParentCode ?? menuAttr?.Code,
                         });
                     }
                 }

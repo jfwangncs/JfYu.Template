@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Mapster;
-using Microsoft.AspNetCore.Authorization;
+﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using WebApi.Attributes;
 using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Model;
@@ -12,12 +12,13 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Permission(PermissionCodes.Role, PermissionType.Menu, parentCode: PermissionCodes.System)]
     public class RoleController(IRoleService roleService) : CustomController
     {
         private readonly IRoleService _roleService = roleService;
 
         [HttpGet]
+        [Permission(PermissionCodes.RoleGet)]
         public async Task<IActionResult> GetAllAsync([FromQuery] QueryRequest query)
         {
             var result = await _roleService.GetPagedAsync(query);
@@ -25,6 +26,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Permission(PermissionCodes.RoleGet)]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var role = await _roleService.GetOneAsync(q => q.Id.Equals(id));
@@ -34,6 +36,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
+        [Permission(PermissionCodes.RoleAdd)]
         public async Task<IActionResult> CreateAsync([FromBody][Required] CreateRoleRequest request)
         {
             var exist = await _roleService.GetOneAsync(q => q.Name.Equals(request.Name));
@@ -45,6 +48,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Permission(PermissionCodes.RoleEdit)]
         public async Task<IActionResult> UpdateAsync(int id, [FromBody][Required] UpdateRoleRequest request)
         {
             var role = await _roleService.GetOneAsync(q => q.Id.Equals(id));

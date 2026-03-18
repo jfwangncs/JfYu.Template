@@ -4,11 +4,8 @@ namespace WebApi.Model.Permission
 {
     public class ScannedPermission
     {
-        public required string Code { get; set; }
-        public required string Name { get; set; }
+        public required string Code { get; set; } 
         public PermissionType Type { get; set; } = PermissionType.Button;
-        public string? ParentCode { get; set; }
-        public string? Icon { get; set; }
-        public int Sort { get; set; }
+        public string? ParentCode { get; set; } 
     }
 }
