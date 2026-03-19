@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using WebApi.Attributes;
 using WebApi.Constants;
+using WebApi.Entity;
 using WebApi.Model;
 using WebApi.Model.Permission;
 using WebApi.Services.Interfaces;
@@ -42,12 +43,7 @@ namespace WebApi.Controllers
             if (permission == null)
                 return BadRequest(ErrorCode.PermissionNotFound);
 
-            if (request.Name != null) permission.Name = request.Name;
-            if (request.Description != null) permission.Description = request.Description;
-            if (request.Icon != null) permission.Icon = request.Icon;
-            if (request.Sort.HasValue) permission.Sort = request.Sort.Value;
-
-            if (await _permissionService.UpdateAsync(permission) > 0)
+            if (await _permissionService.UpdateAsync(request.Adapt(permission)) > 0)
                 return Ok(permission.Adapt<PermissionResponse>());
             else
                 return BadRequest(ErrorCode.OperationFailed);

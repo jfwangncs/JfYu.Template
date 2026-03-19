@@ -22,6 +22,7 @@ export namespace SystemPermissionApi {
     description?: string;
     icon?: string;
     sort?: number;
+    status?: number;
   }
 }
 

@@ -50,6 +50,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
         description: data.description,
         icon: data.icon,
         sort: data.sort,
+        status: data.status,
       });
     }
   },

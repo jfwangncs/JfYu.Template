@@ -6,5 +6,6 @@ namespace WebApi.Model.Permission
         public string? Description { get; set; }
         public string? Icon { get; set; }
         public int? Sort { get; set; }
+        public int? Status { get; set; }
     }
 }

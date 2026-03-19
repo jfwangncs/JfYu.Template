@@ -475,11 +475,24 @@ export function useGridFormSchema(): VbenFormSchema[] {
   /* search bar schema */
 }
 
-export function useColumns(
-  onActionClick: OnActionClickFn,
-  onStatusChange: Function,
+export function useColumns<T = SystemProductApi.SystemProduct>(
+  onActionClick: OnActionClickFn<T>,
+  onStatusChange?: (newStatus: any, row: T) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions["columns"] {
-  /* table columns */
+  return [
+    // ... other columns ...
+    {
+      // Status toggle column — use CellSwitch when onStatusChange is provided, CellTag otherwise
+      cellRender: {
+        attrs: { beforeChange: onStatusChange },
+        name: onStatusChange ? "CellSwitch" : "CellTag",
+      },
+      field: "status",
+      title: $t("system.product.status"),
+      width: 120,
+    },
+    // ... operation column ...
+  ];
 }
 ```
 
@@ -583,6 +596,40 @@ const [Grid, gridApi] = useVbenVxeGrid({
 function onActionClick(e) {
   if (e.code === "edit") formDrawerApi.setData(e.row).open();
 }
+
+function confirm(content: string, title: string) {
+  return new Promise((resolve, reject) => {
+    Modal.confirm({
+      content,
+      onCancel() {
+        reject(new Error("cancelled"));
+      },
+      onOk() {
+        resolve(true);
+      },
+      title,
+    });
+  });
+}
+
+// Status toggle — uses i18n keys from system.common (prefix-change / mid-change / suffix-change)
+async function onStatusChange(
+  newStatus: number,
+  row: SystemProductApi.SystemProduct,
+): Promise<boolean> {
+  const label = newStatus === 1 ? $t("common.enabled") : $t("common.disabled");
+  try {
+    await confirm(
+      `${$t("system.common.prefix-change")} ${row.name} ${$t("system.common.mid-change")} ${$t("system.product.status")} ${$t("system.common.suffix-change")}【 ${label}】?`,
+      $t("common.edit"),
+    );
+    await updateProduct(row.id, { status: newStatus });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function onRefresh() {
   gridApi.query();
 }

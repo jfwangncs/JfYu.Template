@@ -9,10 +9,14 @@ import type {
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { RotateCw } from '@vben/icons';
 
-import { Button, message } from 'ant-design-vue';
+import { Button, message, Modal } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getPermissionList, syncPermissions } from '#/api/system/permission';
+import {
+  getPermissionList,
+  syncPermissions,
+  updatePermission,
+} from '#/api/system/permission';
 import { $t } from '#/locales';
 
 import { useColumns, useGridFormSchema } from './data';
@@ -25,7 +29,7 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: useColumns(onActionClick),
+    columns: useColumns(onActionClick, onStatusChange),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -61,6 +65,38 @@ function onActionClick(
 ) {
   if (e.code === 'edit') {
     formDrawerApi.setData(e.row).open();
+  }
+}
+
+function confirm(content: string, title: string) {
+  return new Promise((resolve, reject) => {
+    Modal.confirm({
+      content,
+      onCancel() {
+        reject(new Error('cancelled'));
+      },
+      onOk() {
+        resolve(true);
+      },
+      title,
+    });
+  });
+}
+
+async function onStatusChange(
+  newStatus: number,
+  row: SystemPermissionApi.SystemPermission,
+): Promise<boolean> {
+  const label = newStatus === 1 ? $t('common.enabled') : $t('common.disabled');
+  try {
+    await confirm(
+      `${$t('system.common.prefix-change')} ${row.name} ${$t('system.common.mid-change')} ${$t('system.permission.status')} ${$t('system.common.suffix-change')}【 ${label}】?`,
+      $t('common.edit'),
+    );
+    await updatePermission(row.id, { status: newStatus });
+    return true;
+  } catch {
+    return false;
   }
 }
 

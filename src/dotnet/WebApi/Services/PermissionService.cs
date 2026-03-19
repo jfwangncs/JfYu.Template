@@ -64,6 +64,7 @@ namespace WebApi.Services
                     _context.Permissions.Add(new Permission
                     {
                         Code = item.Code,
+                        Name = item.Code,
                         Type = item.Type,
                         ParentId = parentId,
                     });

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { Recordable } from '@vben/types';
-
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import type { SystemRoleApi } from '#/api';
 import { Plus } from '@vben/icons';
@@ -77,14 +75,14 @@ function onActionClick(e: OnActionClickParams<SystemRoleApi.SystemRole>) {
   }
 }
 function confirm(content: string, title: string) {
-  return new Promise((reslove, reject) => {
+  return new Promise((resolve, reject) => {
     Modal.confirm({
       content,
       onCancel() {
-        reject(new Error('已取消'));
+        reject(new Error('cancelled'));
       },
       onOk() {
-        reslove(true);
+        resolve(true);
       },
       title,
     });
@@ -93,15 +91,12 @@ function confirm(content: string, title: string) {
 async function onStatusChange(
   newStatus: number,
   row: SystemRoleApi.SystemRole,
-) {
-  const status: Recordable<string> = {
-    0: '禁用',
-    1: '启用',
-  };
+): Promise<boolean> {
+  const label = newStatus === 1 ? $t('common.enabled') : $t('common.disabled');
   try {
     await confirm(
-      `你要将${row.name}的状态切换为 【${status[newStatus.toString()]}】 吗？`,
-      `切换状态`,
+      `${$t('system.common.prefix-change')} ${row.name} ${$t('system.common.mid-change')} ${$t('system.role.status')} ${$t('system.common.suffix-change')}【 ${label}】?`,
+      $t('common.edit'),
     );
     await updateRole(row.id, { status: newStatus });
     return true;

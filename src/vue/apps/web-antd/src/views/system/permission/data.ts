@@ -40,6 +40,20 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'sort',
       label: $t('system.permission.sort'),
     },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        buttonStyle: 'solid',
+        options: [
+          { label: $t('common.enabled'), value: 1 },
+          { label: $t('common.disabled'), value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'status',
+      label: $t('system.permission.status'),
+    },
   ];
 }
 
@@ -67,6 +81,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 
 export function useColumns<T = SystemPermissionApi.SystemPermission>(
   onActionClick: OnActionClickFn<T>,
+  onStatusChange?: (newStatus: any, row: T) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [
     {
@@ -104,6 +119,15 @@ export function useColumns<T = SystemPermissionApi.SystemPermission>(
       field: 'description',
       minWidth: 100,
       title: $t('system.permission.description'),
+    },
+    {
+      cellRender: {
+        attrs: { beforeChange: onStatusChange },
+        name: onStatusChange ? 'CellSwitch' : 'CellTag',
+      },
+      field: 'status',
+      title: $t('system.permission.status'),
+      width: 120,
     },
     {
       field: 'createdTime',
