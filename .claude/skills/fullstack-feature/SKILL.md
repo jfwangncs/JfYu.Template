@@ -88,7 +88,41 @@ Model/
 
 Namespace follows the folder: `WebApi.Model.Product`.
 
-Use plain C# classes — no inheritance needed. Nullable optional fields.
+Use plain C# classes — no inheritance needed.
+
+### Update request — nullable fields / partial update contract
+
+**All fields in `Update<Name>Request` must be nullable.** The frontend only sends fields that actually changed; the controller applies only the fields that are non-null.
+
+```csharp
+// ✅ Correct — every field nullable
+public class UpdateProductRequest
+{
+    public string? Name { get; set; }
+    public decimal? Price { get; set; }
+    public int? Status { get; set; }
+}
+```
+
+Controller apply-pattern — guard every field before assigning:
+
+```csharp
+if (request.Name != null)        item.Name = request.Name;
+if (request.Price.HasValue)      item.Price = request.Price.Value;
+if (request.Status.HasValue)     item.Status = request.Status.Value;
+```
+
+Frontend `UpdateParams` mirrors this: every property is optional (`?`). Callers only include changed keys in the payload — omitted keys are simply not sent.
+
+```ts
+export interface UpdateProductParams {
+  name?: string;
+  price?: number;
+  status?: number;
+}
+```
+
+> This means a status-only toggle (`{ status: 0 }`) and a full form save both use the same `PUT /{id}` endpoint — **no separate toggle endpoint is needed**.
 
 ---
 
