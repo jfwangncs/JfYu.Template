@@ -7,19 +7,20 @@ import type {
 } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { RotateCw } from '@vben/icons';
+import { IconifyIcon, Plus, RotateCw } from '@vben/icons';
 
 import { Button, message, Modal } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getPermissionList,
+  deletePermission,
+  getPermissionTreeList,
   syncPermissions,
   updatePermission,
 } from '#/api/system/permission';
 import { $t } from '#/locales';
 
-import { useColumns, useGridFormSchema } from './data';
+import { useColumns } from './data';
 import Form from './modules/form.vue';
 
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
@@ -32,14 +33,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
     columns: useColumns(onActionClick, onStatusChange),
     height: 'auto',
     keepSource: true,
+    pagerConfig: {
+      enabled: false,
+    },
     proxyConfig: {
       ajax: {
-        query: async ({ page }, formValues) => {
-          return await getPermissionList({
-            pageIndex: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          });
+        query: async () => {
+          return await getPermissionTreeList();
         },
       },
     },
@@ -50,21 +50,32 @@ const [Grid, gridApi] = useVbenVxeGrid({
       custom: true,
       export: false,
       refresh: true,
-      search: true,
-      zoom: false,
+      zoom: true,
+    },
+    treeConfig: {
+      parentField: 'parentId',
+      rowField: 'id',
+      transform: true,
     },
   } as VxeTableGridOptions<SystemPermissionApi.SystemPermission>,
-  formOptions: {
-    schema: useGridFormSchema(),
-    submitOnChange: true,
-  },
 });
 
 function onActionClick(
   e: OnActionClickParams<SystemPermissionApi.SystemPermission>,
 ) {
-  if (e.code === 'edit') {
-    formDrawerApi.setData(e.row).open();
+  switch (e.code) {
+    case 'append': {
+      formDrawerApi.setData({ parentId: e.row.id }).open();
+      break;
+    }
+    case 'edit': {
+      formDrawerApi.setData(e.row).open();
+      break;
+    }
+    case 'delete': {
+      onDelete(e.row);
+      break;
+    }
   }
 }
 
@@ -100,8 +111,31 @@ async function onStatusChange(
   }
 }
 
+function onDelete(row: SystemPermissionApi.SystemPermission) {
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deleting', [row.name]),
+    duration: 0,
+    key: 'action_process_msg',
+  });
+  deletePermission(row.id)
+    .then(() => {
+      message.success({
+        content: $t('ui.actionMessage.deleteSuccess', [row.name]),
+        key: 'action_process_msg',
+      });
+      onRefresh();
+    })
+    .catch(() => {
+      hideLoading();
+    });
+}
+
 function onRefresh() {
   gridApi.query();
+}
+
+function onCreate() {
+  formDrawerApi.setData(null).open();
 }
 
 async function onSync() {
@@ -116,10 +150,24 @@ async function onSync() {
     <FormDrawer @success="onRefresh" />
     <Grid>
       <template #toolbar-tools>
-        <Button type="primary" @click="onSync">
+        <Button class="mr-2" type="primary" @click="onCreate">
+          <Plus class="size-5" />
+          {{ $t('common.create', [$t('system.permission.name')]) }}
+        </Button>
+        <Button type="default" @click="onSync">
           <RotateCw class="mr-1 size-4" />
           {{ $t('system.permission.sync') }}
         </Button>
+      </template>
+      <template #name="{ row }">
+        <div class="flex items-center gap-1">
+          <IconifyIcon
+            v-if="row.icon"
+            :icon="row.icon"
+            class="size-4 shrink-0"
+          />
+          <span>{{ row.name }}</span>
+        </div>
       </template>
     </Grid>
   </Page>

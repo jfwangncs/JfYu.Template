@@ -8,6 +8,7 @@ namespace WebApi.Services.Interfaces
     public interface IPermissionService : IService<Permission, AppDbContext>
     {
         void SyncAsync();
-        Task<PagedResult<PermissionResponse>> GetPagedAsync(QueryRequest query);
+
+        Task<List<PermissionResponse>> GetListAsync();
     }
 }

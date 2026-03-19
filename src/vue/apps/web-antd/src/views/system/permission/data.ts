@@ -2,22 +2,30 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemPermissionApi } from '#/api/system/permission';
 
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
-
 import { $t } from '#/locales';
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
-const typeMap: Record<number, string> = {
-  1: 'Menu',
-  2: 'Button',
-};
+export function getPermissionTypeOptions() {
+  return [
+    { color: 'blue', label: $t('system.permission.typeMenu'), value: 1 },
+    { color: 'orange', label: $t('system.permission.typeButton'), value: 2 },
+    { color: 'purple', label: $t('system.permission.typeDirectory'), value: 3 },
+    { color: 'cyan', label: $t('system.permission.typeLink'), value: 4 },
+  ];
+}
 
 export function useFormSchema(): VbenFormSchema[] {
   return [
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        buttonStyle: 'solid',
+        options: getPermissionTypeOptions(),
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'type',
+      label: $t('system.permission.type'),
+    },
     {
       component: 'Input',
       fieldName: 'name',
@@ -26,11 +34,21 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       component: 'Input',
+      fieldName: 'code',
+      label: $t('system.permission.code'),
+      rules: 'required',
+    },
+    {
+      component: 'Input',
       fieldName: 'description',
       label: $t('system.permission.description'),
     },
     {
-      component: 'Input',
+      component: 'IconPicker',
+      dependencies: {
+        show: (values) => [1, 3, 4].includes(values.type),
+        triggerFields: ['type'],
+      },
       fieldName: 'icon',
       label: $t('system.permission.icon'),
     },
@@ -85,25 +103,24 @@ export function useColumns<T = SystemPermissionApi.SystemPermission>(
 ): VxeTableGridOptions['columns'] {
   return [
     {
-      field: 'id',
-      title: $t('system.permission.id'),
-      width: 80,
+      align: 'left',
+      field: 'name',
+      fixed: 'left',
+      slots: { default: 'name' },
+      title: $t('system.permission.name'),
+      treeNode: true,
+      width: 220,
+    },
+    {
+      cellRender: { name: 'CellTag', options: getPermissionTypeOptions() },
+      field: 'type',
+      title: $t('system.permission.type'),
+      width: 100,
     },
     {
       field: 'code',
       title: $t('system.permission.code'),
       width: 220,
-    },
-    {
-      field: 'name',
-      title: $t('system.permission.name'),
-      width: 180,
-    },
-    {
-      field: 'type',
-      formatter: ({ cellValue }) => typeMap[cellValue] ?? cellValue,
-      title: $t('system.permission.type'),
-      width: 100,
     },
     {
       field: 'sort',
@@ -130,15 +147,6 @@ export function useColumns<T = SystemPermissionApi.SystemPermission>(
       width: 120,
     },
     {
-      field: 'createdTime',
-      formatter: ({ cellValue }) => {
-        if (!cellValue) return '';
-        return dayjs.utc(cellValue).local().format('YYYY-MM-DD HH:mm:ss');
-      },
-      title: $t('system.permission.createdTime'),
-      width: 200,
-    },
-    {
       align: 'center',
       cellRender: {
         attrs: {
@@ -147,12 +155,15 @@ export function useColumns<T = SystemPermissionApi.SystemPermission>(
           onClick: onActionClick,
         },
         name: 'CellOperation',
-        options: ['edit'],
+        options: [
+          { code: 'append', text: $t('system.permission.addChild') },
+          'edit',
+        ],
       },
       field: 'operation',
       fixed: 'right',
       title: $t('system.permission.operation'),
-      width: 130,
+      width: 200,
     },
   ];
 }

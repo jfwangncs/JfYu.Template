@@ -19,5 +19,6 @@
   "4200": "Role not found",
   "4201": "Duplicate role name",
   "4250": "Permission not found",
+  "4251": "Duplicate permission code",
   "4300": "The product is out of stock"
 }

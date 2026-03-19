@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using WebApi.Attributes;
 using WebApi.Constants;
 using WebApi.Entity;
-using WebApi.Model;
 using WebApi.Model.Permission;
 using WebApi.Services.Interfaces;
 
@@ -17,11 +16,19 @@ namespace WebApi.Controllers
     {
         private readonly IPermissionService _permissionService = permissionService;
 
-        [HttpGet]
+
+        [HttpGet("menu")]
         [Permission(PermissionCodes.PermissionGet)]
-        public async Task<IActionResult> GetAllAsync([FromQuery] QueryRequest query)
+        public async Task<IActionResult> GetMenuAsync()
         {
-            var result = await _permissionService.GetPagedAsync(query);
+            var result = await _permissionService.GetListAsync();
+            return Ok(result);
+        }
+        [HttpGet("list")]
+        [Permission(PermissionCodes.PermissionGet)]
+        public async Task<IActionResult> GetListAsync()
+        {
+            var result = await _permissionService.GetListAsync();
             return Ok(result);
         }
 
@@ -33,6 +40,21 @@ namespace WebApi.Controllers
             if (permission == null)
                 return BadRequest(ErrorCode.PermissionNotFound);
             return Ok(permission.Adapt<PermissionResponse>());
+        }
+
+        [HttpPost]
+        [Permission(PermissionCodes.PermissionAdd)]
+        public async Task<IActionResult> CreateAsync([FromBody][Required] CreatePermissionRequest request)
+        {
+            var exists = await _permissionService.GetOneAsync(q => q.Code == request.Code);
+            if (exists != null)
+                return BadRequest(ErrorCode.DuplicatePermission);
+
+            var permission = request.Adapt<Permission>();
+            if (await _permissionService.AddAsync(permission) > 0)
+                return Ok(permission.Adapt<PermissionResponse>());
+            else
+                return BadRequest(ErrorCode.OperationFailed);
         }
 
         [HttpPut("{id}")]

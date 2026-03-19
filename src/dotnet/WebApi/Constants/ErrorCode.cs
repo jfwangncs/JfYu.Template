@@ -75,6 +75,8 @@ namespace WebApi.Constants
         #region Permission
         [Description("Permission not found.")]
         PermissionNotFound = 4250,
+        [Description("Duplicate permission code.")]
+        DuplicatePermission,
         #endregion
 
         //internal service error

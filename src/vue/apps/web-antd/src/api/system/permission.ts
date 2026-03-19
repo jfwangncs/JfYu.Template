@@ -15,6 +15,17 @@ export namespace SystemPermissionApi {
     parentId?: number;
     status: number;
     createdTime: string;
+    children?: SystemPermission[];
+  }
+
+  export interface CreatePermissionParams {
+    name: string;
+    code: string;
+    type: number;
+    description?: string;
+    icon?: string;
+    sort?: number;
+    parentId?: number;
   }
 
   export interface UpdatePermissionParams {
@@ -33,10 +44,22 @@ export async function getPermissionList(params: Recordable<any>) {
   }>('/permission', { params });
 }
 
+export async function getPermissionTreeList() {
+  return requestClient.get<SystemPermissionApi.SystemPermission[]>(
+    '/permission/list',
+  );
+}
+
 export async function getPermissionById(id: number) {
   return requestClient.get<SystemPermissionApi.SystemPermission>(
     `/permission/${id}`,
   );
+}
+
+export async function createPermission(
+  data: SystemPermissionApi.CreatePermissionParams,
+) {
+  return requestClient.post('/permission', data);
 }
 
 export async function updatePermission(
@@ -44,6 +67,10 @@ export async function updatePermission(
   data: SystemPermissionApi.UpdatePermissionParams,
 ) {
   return requestClient.put(`/permission/${id}`, data);
+}
+
+export async function deletePermission(id: number) {
+  return requestClient.delete(`/permission/${id}`);
 }
 
 export async function syncPermissions() {

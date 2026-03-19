@@ -116,7 +116,7 @@ Controllers inherit from `CustomController` (not `ControllerBase` directly) whic
 
 Services extend `Service<TEntity, TDbContext>` from `JfYu.Data` which provides:
 
-- `AddAsync`, `UpdateAsync`, `DeleteAsync`
+- `AddAsync`, `UpdateAsync`, `RemoveAsync(predicate)` (soft delete), `HardRemoveAsync(predicate)` (hard delete)
 - `GetOneAsync(expression)`, `GetPagedAsync(query)`, `GetAllAsync(expression)`
 - Automatic read/write DB context splitting when `ReadonlyDBContext<T>` is registered
 

@@ -4,15 +4,17 @@
     {
         public const string System = "system";
 
-        public const string Role = "Role";
-        public const string RoleAdd = "Role:add";
-        public const string RoleGet = "Role:get";
-        public const string RoleEdit = "Role:edit";
-        public const string RoleAssign = "Role:assign";
+        public const string Role = "role";
+        public const string RoleAdd = "role:add";
+        public const string RoleGet = "role:get";
+        public const string RoleEdit = "role:edit";
+        public const string RoleAssign = "role:assign";
 
-        public const string Permission = "Permission";
-        public const string PermissionGet = "Permission:get";
-        public const string PermissionEdit = "Permission:edit";
-        public const string PermissionSync = "Permission:sync";
+        public const string Permission = "permission";
+        public const string PermissionGet = "permission:get";
+        public const string PermissionAdd = "permission:add";
+        public const string PermissionEdit = "permission:edit";
+        public const string PermissionDelete = "permission:delete";
+        public const string PermissionSync = "permission:sync";
     }
 }
