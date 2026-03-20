@@ -20,7 +20,8 @@ namespace WebApi.Extensions
             //#if (EnableRBAC) 
             TypeAdapterConfig<UpdateRoleRequest, Role>.NewConfig().IgnoreNullValues(true);
             TypeAdapterConfig<UpdateUserRequest, User>.NewConfig().IgnoreNullValues(true);
-            TypeAdapterConfig<User, UserResponse>.ForType().Map(q => q.Roles, q => q.Roles.SelectMany(r => r.Permissions).Select(p => p.Code).ToList());
+            TypeAdapterConfig<User, UserResponse>.ForType().Map(q => q.Roles, q => q.Roles.SelectMany(r => r.Permissions).Select(p => p.Code).ToList())
+            .Map(q => q.RoleList, q => q.Roles.Select(r => r.Adapt<RoleResponse>()).ToList());
             //#endif
             return services;
         }

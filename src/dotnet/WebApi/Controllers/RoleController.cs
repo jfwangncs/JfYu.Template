@@ -33,7 +33,7 @@ namespace WebApi.Controllers
             var role = await _roleService.GetOneAsync(q => q.Id.Equals(id));
             if (role == null)
                 return BadRequest(ErrorCode.RoleNotFound);
-            return Ok(role);
+            return Ok(role.Adapt<RoleResponse>());
         }
 
         [HttpPost]
@@ -45,7 +45,7 @@ namespace WebApi.Controllers
                 return BadRequest(ErrorCode.DuplicateRole);
             var role = request.Adapt<Role>();
             await _roleService.AddAsync(role);
-            return Ok(role);
+            return Ok(role.Adapt<RoleResponse>());
         }
 
         [HttpPut("{id}")]
@@ -61,9 +61,20 @@ namespace WebApi.Controllers
                 return BadRequest(ErrorCode.DuplicateRole);
 
             if (await _roleService.UpdateAsync(request.Adapt(role)) > 0)
-                return Ok(role);
+                return Ok(role.Adapt<RoleResponse>());
             else
                 return BadRequest(ErrorCode.OperationFailed);
+        }
+
+        [HttpPut("{id}/permissions")]
+        [Permission(PermissionCodes.RoleAssign)]
+        public async Task<IActionResult> AssignPermissionsAsync(int id, [FromBody][Required] AssignPermissionsRequest request)
+        {
+            var role = await _roleService.GetOneAsync(q => q.Id == id);
+            if (role == null)
+                return BadRequest(ErrorCode.RoleNotFound);
+            await _roleService.AssignPermissionsAsync(id, request.PermissionIds);
+            return Ok();
         }
     }
 }

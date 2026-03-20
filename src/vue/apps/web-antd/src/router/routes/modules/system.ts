@@ -19,6 +19,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:users',
           title: $t('page.system.user'),
+          authority: ['user'],
         },
       },
       {
@@ -26,8 +27,9 @@ const routes: RouteRecordRaw[] = [
         path: '/system/role',
         component: () => import('#/views/system/role/index.vue'),
         meta: {
-          icon: 'lucide:shield',
+          icon: 'lucide:shield-check',
           title: $t('page.system.role'),
+          authority: ['role'],
         },
       },
       {
@@ -37,6 +39,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:key',
           title: $t('page.system.permission'),
+          authority: ['permission'],
         },
       },
     ],

@@ -16,7 +16,9 @@ dayjs.extend(utc);
 import { useColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { AccessControl, useAccess } from '@vben/access';
 
+const { hasAccessByCodes } = useAccess();
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: Form,
   destroyOnClose: true,
@@ -122,7 +124,11 @@ function onCreate() {
     <FormDrawer @success="onRefresh" />
     <Grid :table-title="$t('system.role.list')">
       <template #toolbar-tools>
-        <Button type="primary" @click="onCreate">
+        <Button
+          v-if="hasAccessByCodes(['role:add'])"
+          type="primary"
+          @click="onCreate"
+        >
           <Plus class="size-5" />
           {{ $t('ui.actionTitle.create', [$t('system.role.name')]) }}
         </Button>

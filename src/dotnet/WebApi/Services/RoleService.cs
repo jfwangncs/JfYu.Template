@@ -32,5 +32,24 @@ namespace WebApi.Services
 
             return await q.ToPagedAsync(query.PageIndex, query.PageSize);
         }
+
+        public async Task AssignPermissionsAsync(int roleId, List<int> permissionIds)
+        {
+            var role = await _context.Roles
+                .Include(r => r.Permissions)
+                .FirstOrDefaultAsync(r => r.Id == roleId);
+            if (role == null) return;
+
+            role.Permissions.Clear();
+            if (permissionIds.Count > 0)
+            {
+                var permissions = await _context.Permissions
+                    .Where(p => permissionIds.Contains(p.Id))
+                    .ToListAsync();
+                foreach (var p in permissions)
+                    role.Permissions.Add(p);
+            }
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -123,14 +123,6 @@ namespace WebApi.Services
                 .ToList();
         }
 
-        public async Task<List<PermissionResponse>> GetListAsync()
-        {
-            var list = await _readonlyContext.Permissions
-                .OrderBy(p => p.Sort).ThenBy(p => p.Id)
-                .ToListAsync();
-            return list.Adapt<List<PermissionResponse>>();
-        }
-
 
         public async Task<PagedResult<PermissionResponse>> GetPagedAsync(QueryRequest query)
         {

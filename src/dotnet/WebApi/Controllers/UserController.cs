@@ -26,7 +26,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetAllAsync([FromQuery] QueryRequest query)
         {
             var result = await _userService.GetPagedAsync(query);
-            return Ok(result);
+            return Ok(result.Adapt<PagedResult<UserResponse>>());
         }
 
         [HttpGet("{id}")]
@@ -36,7 +36,7 @@ namespace WebApi.Controllers
             var user = await _userService.GetOneAsync(q => q.Id.Equals(id));
             if (user == null)
                 return BadRequest(ErrorCode.UserNotFound);
-            return Ok(user);
+            return Ok(user.Adapt<UserResponse>());
         }
 
         [HttpPut("{id}")]

@@ -1,5 +1,6 @@
 ﻿using JfYu.Data.Context;
 using JfYu.Data.Extension;
+using JfYu.Data.Model;
 using JfYu.Data.Service;
 using JfYu.WeChat;
 using Mapster;
@@ -63,9 +64,9 @@ namespace WebApi.Services
             return user;
         }
 
-        public async Task<PagedResult<UserResponse>> GetPagedAsync(QueryRequest query)
+        public async Task<PagedData<User>> GetPagedAsync(QueryRequest query)
         {
-            var q = _readonlyContext.Users.Include(q => q.Roles).AsQueryable();
+            var q = _readonlyContext.Users.Include(q => q.Roles).ThenInclude(q => q.Permissions).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.SearchKey))
             {
@@ -85,12 +86,8 @@ namespace WebApi.Services
             if (query.EndTime.HasValue)
                 q = q.Where(u => u.CreatedTime <= query.EndTime.Value);
 
-            var paged = await q.ToPagedAsync(q => q.Adapt<IEnumerable<UserResponse>>(), query.PageIndex, query.PageSize);
-            return new PagedResult<UserResponse>
-            {
-                Items = paged.Data?.ToList() ?? [],
-                Total = paged.TotalCount
-            };
+            return await q.ToPagedAsync(query.PageIndex, query.PageSize);
+
         }
 
         public override async Task<User?> GetOneAsync(Expression<Func<User, bool>>? predicate = null, CancellationToken cancellationToken = default)

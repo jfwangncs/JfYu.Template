@@ -3,18 +3,22 @@ import type { DataNode } from 'ant-design-vue/es/tree';
 
 import type { Recordable } from '@vben/types';
 
+import type { SystemPermissionApi } from '#/api/system/permission';
 import type { SystemRoleApi } from '#/api/system/role';
 
 import { computed, nextTick, ref } from 'vue';
 
 import { Tree, useVbenDrawer } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
 
 import { Spin } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-// import { getMenuList } from '#/api/system/menu';
-import { createRole, updateRole } from '#/api/system/role';
+import { getPermissionTreeList } from '#/api/system/permission';
+import {
+  assignRolePermissions,
+  createRole,
+  updateRole,
+} from '#/api/system/role';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';
@@ -37,15 +41,18 @@ const [Drawer, drawerApi] = useVbenDrawer({
     const { valid } = await formApi.validate();
     if (!valid) return;
     const values = await formApi.getValues();
+    const permissionIds: number[] = (values.permissions as number[]) ?? [];
     drawerApi.lock();
-    (id.value ? updateRole(id.value, values) : createRole(values))
-      .then(() => {
-        emits('success');
-        drawerApi.close();
-      })
-      .catch(() => {
-        drawerApi.unlock();
-      });
+    try {
+      const roleId = id.value
+        ? (await updateRole(id.value, values), Number(id.value))
+        : Number((await createRole(values)).id);
+      await assignRolePermissions(roleId, permissionIds);
+      emits('success');
+      drawerApi.close();
+    } catch {
+      drawerApi.unlock();
+    }
   },
 
   async onOpenChange(isOpen) {
@@ -66,7 +73,8 @@ const [Drawer, drawerApi] = useVbenDrawer({
       // Wait for Vue to flush DOM updates (form fields mounted)
       await nextTick();
       if (data) {
-        formApi.setValues(data);
+        const ids = (data.permissions ?? []).map((p: any) => p.id);
+        formApi.setValues({ ...data, permissions: ids });
       }
     }
   },
@@ -75,11 +83,24 @@ const [Drawer, drawerApi] = useVbenDrawer({
 async function loadPermissions() {
   loadingPermissions.value = true;
   try {
-    // const res = await getMenuList();
-    // permissions.value = res as unknown as DataNode[];
+    const flat = await getPermissionTreeList();
+    permissions.value = buildTree(flat) as any[];
   } finally {
     loadingPermissions.value = false;
   }
+}
+
+function buildTree(
+  items: SystemPermissionApi.SystemPermission[],
+  parentId: number | null = null,
+): SystemPermissionApi.SystemPermission[] {
+  return items
+    .filter((p) => (p.parentId ?? null) === parentId)
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .map((p) => {
+      const children = buildTree(items, p.id);
+      return children.length > 0 ? { ...p, children } : { ...p };
+    });
 }
 
 const getDrawerTitle = computed(() => {
@@ -110,14 +131,9 @@ function getNodeClass(node: Recordable<any>) {
             :get-node-class="getNodeClass"
             v-bind="slotProps"
             value-field="id"
-            label-field="meta.title"
-            icon-field="meta.icon"
-          >
-            <template #node="{ value }">
-              <IconifyIcon v-if="value.meta.icon" :icon="value.meta.icon" />
-              {{ $t(value.meta.title) }}
-            </template>
-          </Tree>
+            label-field="name"
+            icon-field="icon"
+          />
         </Spin>
       </template>
     </Form>

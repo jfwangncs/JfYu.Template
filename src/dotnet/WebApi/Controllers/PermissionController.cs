@@ -21,7 +21,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetListAsync()
         {
             var result = await _permissionService.GetListAsync();
-            return Ok(result);
+            return Ok(result.Adapt<List<PermissionResponse>>());
         }
 
         [HttpGet("{id}")]
