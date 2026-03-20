@@ -10,7 +10,5 @@ namespace WebApi.Services.Interfaces
         void SyncAsync();
 
         Task<List<PermissionResponse>> GetListAsync();
-
-        Task<List<string>> GetCurrentUserPermissionCodesAsync(int? userId = null);
     }
 }

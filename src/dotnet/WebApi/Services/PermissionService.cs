@@ -131,27 +131,6 @@ namespace WebApi.Services
             return list.Adapt<List<PermissionResponse>>();
         }
 
-        public async Task<List<string>> GetCurrentUserPermissionCodesAsync(int? userId = null)
-        {
-            var resolvedId = userId ?? _currentUser.Id;
-            if (resolvedId == null)
-                return [];
-
-            var assignedIds = await _readonlyContext.Users
-                .Where(u => u.Id == resolvedId)
-                .SelectMany(u => u.Roles)
-                .SelectMany(r => r.Permissions)
-                .Select(p => p.Id)
-                .ToHashSetAsync();
-
-            var all = await GetListAsync();
-
-            bool IsAccessible(PermissionResponse p) =>
-                assignedIds.Contains(p.Id) ||
-                (p.ParentId.HasValue && IsAccessible(all.First(x => x.Id == p.ParentId)));
-
-            return all.Where(IsAccessible).Select(p => p.Code).Distinct().ToList();
-        }
 
         public async Task<PagedResult<PermissionResponse>> GetPagedAsync(QueryRequest query)
         {

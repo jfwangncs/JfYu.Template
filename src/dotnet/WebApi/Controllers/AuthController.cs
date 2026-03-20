@@ -51,14 +51,18 @@ namespace WebApi.Controllers
                 AccessToken = token,
                 RealName = user.RealName ?? user.UserName,
                 ExpiresIn = _jwtSettings.Expires,
-                Roles = await _permissionService.GetCurrentUserPermissionCodesAsync(user.Id)
+                Roles = user.Roles.SelectMany(r => r.Permissions).Select(p => p.Code).ToList()
             });
         }
         [HttpGet("codes")]
         [Authorize]
         public async Task<IActionResult> GetAccessCode()
         {
-            return Ok(await _permissionService.GetCurrentUserPermissionCodesAsync());
+            var user = await _userService.GetOneAsync(q => q.Id.Equals(_currentUser.Id));
+            if (user == null)
+                return BadRequest(ErrorCode.UserNotFound);
+
+            return Ok(user.Roles.SelectMany(r => r.Permissions).Select(p => p.Code).ToList());
         }
     }
 }

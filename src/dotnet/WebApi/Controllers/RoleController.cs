@@ -5,6 +5,7 @@ using WebApi.Attributes;
 using WebApi.Constants;
 using WebApi.Entity;
 using WebApi.Model;
+using WebApi.Model.Response;
 using WebApi.Model.Role;
 using WebApi.Services.Interfaces;
 
@@ -22,7 +23,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetAllAsync([FromQuery] QueryRequest query)
         {
             var result = await _roleService.GetPagedAsync(query);
-            return Ok(result);
+            return Ok(result.Adapt<PagedResult<RoleResponse>>());
         }
 
         [HttpGet("{id}")]
@@ -63,6 +64,6 @@ namespace WebApi.Controllers
                 return Ok(role);
             else
                 return BadRequest(ErrorCode.OperationFailed);
-        }   
+        }
     }
 }

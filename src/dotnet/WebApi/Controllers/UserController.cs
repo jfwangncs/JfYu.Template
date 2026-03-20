@@ -60,9 +60,7 @@ namespace WebApi.Controllers
             var user = await _userService.GetOneAsync(q => q.Id.Equals(_currentUser.Id));
             if (user == null)
                 return BadRequest(ErrorCode.UserNotFound);
-            var result = user.Adapt<UserResponse>();
-            result.Roles = await _permissionService.GetCurrentUserPermissionCodesAsync();
-            return Ok(result);
+            return Ok(user.Adapt<UserResponse>());
         }
     }
 }

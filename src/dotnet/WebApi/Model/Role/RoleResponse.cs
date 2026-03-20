@@ -1,3 +1,5 @@
+using WebApi.Model.Permission;
+
 namespace WebApi.Model.Response
 {
     public class RoleResponse
@@ -7,5 +9,6 @@ namespace WebApi.Model.Response
         public string? Description { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime UpdatedTime { get; set; }
+        public ICollection<PermissionResponse> Permissions { get; set; } = [];
     }
 }
