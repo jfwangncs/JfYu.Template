@@ -295,16 +295,25 @@ Open `src/dotnet/WebApi/Constants/PermissionCodes.cs` and add constants for the 
 
 **Convention**:
 
-- Module entry (Menu) → `public const string <Name> = "<name>";`
-- Each action → `public const string <Name><Action> = "<Name>:<action>";`
+- Module entry (Menu) → `public const string <Name> = "<name>";` — **value is lowercase**
+- Each action → `public const string <Name><Action> = "<name>:<action>";` — **both parts lowercase**
 
 ```csharp
-public const string Product = "Product";
-public const string ProductGet = "Product:get";
-public const string ProductAdd = "Product:add";
-public const string ProductEdit = "Product:edit";
-public const string ProductDelete = "Product:delete";
+public const string Product = "product";
+public const string ProductGet = "product:get";
+public const string ProductAdd = "product:add";
+public const string ProductEdit = "product:edit";
+public const string ProductDelete = "product:delete";
 ```
+
+**Current modules in `PermissionCodes.cs`** (for reference):
+
+| Constant group | String values                                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| System         | `"system"`                                                                                                              |
+| Role           | `"role"`, `"role:add"`, `"role:get"`, `"role:edit"`, `"role:assign"`                                                    |
+| Permission     | `"permission"`, `"permission:get"`, `"permission:add"`, `"permission:edit"`, `"permission:delete"`, `"permission:sync"` |
+| User           | `"user"`, `"user:get"`, `"user:edit"`                                                                                   |
 
 **Parent code** determines where this module appears in the permission tree:
 

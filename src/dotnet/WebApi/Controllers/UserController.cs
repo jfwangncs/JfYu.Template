@@ -1,22 +1,20 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OpenTelemetry.Resources;
 using System.ComponentModel.DataAnnotations;
+using WebApi.Attributes;
 using WebApi.Constants;
 using WebApi.Entity;
-using WebApi.Exceptions;
 using WebApi.Model;
 using WebApi.Model.Request;
 using WebApi.Model.Response;
-using WebApi.Model.User;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Permission(PermissionCodes.User, PermissionType.Menu, parentCode: PermissionCodes.System)]
     public class UserController(IUserService userService, ICurrentUser currentUser, IPermissionService permissionService) : CustomController
     {
         private readonly IUserService _userService = userService;
@@ -24,7 +22,7 @@ namespace WebApi.Controllers
         private readonly IPermissionService _permissionService = permissionService;
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Permission(PermissionCodes.UserGet)]
         public async Task<IActionResult> GetAllAsync([FromQuery] QueryRequest query)
         {
             var result = await _userService.GetPagedAsync(query);
@@ -32,7 +30,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Permission(PermissionCodes.UserGet)]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var user = await _userService.GetOneAsync(q => q.Id.Equals(id));
@@ -42,7 +40,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Permission(PermissionCodes.UserEdit)]
         public async Task<IActionResult> UpdateAsync(int id, [FromBody][Required] UpdateUserRequest request)
         {
             var user = await _userService.GetOneAsync(q => q.Id.Equals(id));
