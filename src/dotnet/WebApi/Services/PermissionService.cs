@@ -14,8 +14,9 @@ using WebApi.Services.Interfaces;
 
 namespace WebApi.Services
 {
-    public class PermissionService(AppDbContext context, ReadonlyDBContext<AppDbContext> readonlyDBContext, ILogger<Permission> _logger) : Service<Permission, AppDbContext>(context, readonlyDBContext), IPermissionService
+    public class PermissionService(AppDbContext context, ReadonlyDBContext<AppDbContext> readonlyDBContext, ILogger<Permission> _logger, ICurrentUser currentUser) : Service<Permission, AppDbContext>(context, readonlyDBContext), IPermissionService
     {
+        private readonly ICurrentUser _currentUser = currentUser;
         public void SyncAsync()
         {
             var scanned = ScanAttributes();
@@ -128,6 +129,28 @@ namespace WebApi.Services
                 .OrderBy(p => p.Sort).ThenBy(p => p.Id)
                 .ToListAsync();
             return list.Adapt<List<PermissionResponse>>();
+        }
+
+        public async Task<List<string>> GetCurrentUserPermissionCodesAsync(int? userId = null)
+        {
+            var resolvedId = userId ?? _currentUser.Id;
+            if (resolvedId == null)
+                return [];
+
+            var assignedIds = await _readonlyContext.Users
+                .Where(u => u.Id == resolvedId)
+                .SelectMany(u => u.Roles)
+                .SelectMany(r => r.Permissions)
+                .Select(p => p.Id)
+                .ToHashSetAsync();
+
+            var all = await GetListAsync();
+
+            bool IsAccessible(PermissionResponse p) =>
+                assignedIds.Contains(p.Id) ||
+                (p.ParentId.HasValue && IsAccessible(all.First(x => x.Id == p.ParentId)));
+
+            return all.Where(IsAccessible).Select(p => p.Code).Distinct().ToList();
         }
 
         public async Task<PagedResult<PermissionResponse>> GetPagedAsync(QueryRequest query)

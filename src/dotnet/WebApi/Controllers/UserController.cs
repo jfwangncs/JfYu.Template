@@ -17,10 +17,11 @@ namespace WebApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class UserController(IUserService userService, ICurrentUser currentUser) : CustomController
+    public class UserController(IUserService userService, ICurrentUser currentUser, IPermissionService permissionService) : CustomController
     {
         private readonly IUserService _userService = userService;
         private readonly ICurrentUser _currentUser = currentUser;
+        private readonly IPermissionService _permissionService = permissionService;
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -61,7 +62,9 @@ namespace WebApi.Controllers
             var user = await _userService.GetOneAsync(q => q.Id.Equals(_currentUser.Id));
             if (user == null)
                 return BadRequest(ErrorCode.UserNotFound);
-            return Ok(user.Adapt<UserResponse>());
+            var result = user.Adapt<UserResponse>();
+            result.Roles = await _permissionService.GetCurrentUserPermissionCodesAsync();
+            return Ok(result);
         }
     }
 }

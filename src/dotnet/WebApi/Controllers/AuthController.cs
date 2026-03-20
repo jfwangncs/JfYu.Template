@@ -42,13 +42,6 @@ namespace WebApi.Controllers
             foreach (var item in user.Roles)
                 claims.Add(new Claim(ClaimTypes.Role, item.Name));
 
-            var allPermissions = await _permissionService.GetListAsync();
-            var assignedIds = user.Roles.SelectMany(r => r.Permissions).Select(p => p.Id).ToHashSet();
-            bool IsAccessible(PermissionResponse p) =>
-                assignedIds.Contains(p.Id) ||
-                (p.ParentId.HasValue && IsAccessible(allPermissions.First(x => x.Id == p.ParentId)));
-            foreach (var code in allPermissions.Where(IsAccessible).Select(p => p.Code).Distinct())
-                claims.Add(new Claim("permission", code));
 
             var token = _jwtService.GenerateToken(claims);
 
@@ -58,14 +51,14 @@ namespace WebApi.Controllers
                 AccessToken = token,
                 RealName = user.RealName ?? user.UserName,
                 ExpiresIn = _jwtSettings.Expires,
-                Roles = user.Roles.Select(r => r.Name).ToList()
+                Roles = await _permissionService.GetCurrentUserPermissionCodesAsync(user.Id)
             });
         }
         [HttpGet("codes")]
         [Authorize]
-        public IActionResult GetAccessCode()
+        public async Task<IActionResult> GetAccessCode()
         {
-            return Ok(User.Claims.Where(c => c.Type == "permission").Select(c => c.Value).ToList());
+            return Ok(await _permissionService.GetCurrentUserPermissionCodesAsync());
         }
     }
 }

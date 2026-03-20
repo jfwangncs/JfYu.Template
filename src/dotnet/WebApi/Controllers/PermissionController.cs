@@ -16,14 +16,6 @@ namespace WebApi.Controllers
     {
         private readonly IPermissionService _permissionService = permissionService;
 
-
-        [HttpGet("menu")]
-        [Permission(PermissionCodes.PermissionGet)]
-        public async Task<IActionResult> GetMenuAsync()
-        {
-            var result = await _permissionService.GetListAsync();
-            return Ok(result);
-        }
         [HttpGet("list")]
         [Permission(PermissionCodes.PermissionGet)]
         public async Task<IActionResult> GetListAsync()
