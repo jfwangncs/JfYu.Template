@@ -1,4 +1,4 @@
-using WebApi.Model.Permission;
+﻿using WebApi.Model.Permission;
 
 namespace WebApi.Model.Response
 {
@@ -7,6 +7,7 @@ namespace WebApi.Model.Response
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
+        public int Status { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime UpdatedTime { get; set; }
         public ICollection<PermissionResponse> Permissions { get; set; } = [];
