@@ -1,0 +1,12 @@
+# Gitleaks configuration. Extends the default ruleset.
+# See: https://github.com/gitleaks/gitleaks
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Template placeholders and frontend Vite env vars (bundled to browser, not real secrets)"
+paths = [
+    # Vue app .env files only contain non-secret VITE_* template values.
+    # Real secrets must be placed in .env.local (gitignored) or CI secrets.
+    '''src/vue/apps/[^/]+/\.env(\..+)?$''',
+]

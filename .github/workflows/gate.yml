@@ -1,0 +1,119 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/dotnet
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build template package
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test all combinations
+        run: pwsh ./test-all-combinations.ps1
+
+      - name: Instantiate full template
+        run: |
+          dotnet new JfYuWebApi -o /tmp/testfull --force \
+            --JwtOption Redis \
+            --EnableWeChat true \
+            --EnableTelemetry true \
+            --EnableUnitTest true \
+            --EnableRBAC true
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin SonarCloud Analysis
+        working-directory: /tmp/testfull
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner begin \
+            /k:"jfwangncs_JfYu.Template" \
+            /o:"jfwang" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+            /d:sonar.coverage.exclusions="**/Migrations/**,**/Program.cs,**/Extensions/InjectionExtension.cs,**/Extensions/OptionsExtension.cs,**/Extensions/MapsterExtension.cs,**/Extensions/ServicesExtension.cs,**/Entity/**,**/Model/**,**/Constants/**,**/Options/**,**/Validations/**,**/Exceptions/**" \
+            /d:sonar.exclusions="**/Migrations/**,**/bin/**,**/obj/**"
+
+      - name: Build
+        working-directory: /tmp/testfull
+        run: dotnet build --configuration Release
+
+      - name: Run unit tests
+        working-directory: /tmp/testfull
+        run: |
+          dotnet test --configuration Release --no-build \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: End SonarQube Analysis
+        working-directory: /tmp/testfull
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+  vue:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/vue
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm check:type
+
+      - name: Unit tests with coverage
+        run: pnpm test:coverage
+
+      - name: SonarCloud Analysis
+        uses: sonarsource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: src/vue
+          args: >
+            -Dsonar.projectKey=jfwang_JfYu.Template.Vue
+            -Dsonar.organization=jfwang
+            -Dsonar.sources=apps/web-antd/src
+            -Dsonar.tests=apps/web-antd/src
+            -Dsonar.test.inclusions=**/__tests__/**,**/*.{test,spec}.{ts,tsx,js,jsx}
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.d.ts,apps/web-antd/src/router/**,apps/web-antd/src/locales/**,apps/web-antd/src/store/**,apps/web-antd/src/layouts/**,apps/web-antd/src/main.ts,apps/web-antd/src/bootstrap.ts,apps/web-antd/src/adapter/**,apps/web-antd/src/api/request.ts,apps/web-antd/src/views/_core/**,apps/web-antd/src/views/dashboard/**
+            -Dsonar.coverage.exclusions=**/__tests__/**,**/*.{test,spec}.{ts,tsx,js,jsx},**/*.d.ts,**/*.vue,apps/web-antd/src/router/**,apps/web-antd/src/locales/**,apps/web-antd/src/store/**,apps/web-antd/src/layouts/**,apps/web-antd/src/main.ts,apps/web-antd/src/bootstrap.ts,apps/web-antd/src/adapter/**,apps/web-antd/src/views/_core/**,apps/web-antd/src/views/dashboard/**,apps/web-antd/src/api/core/**,apps/web-antd/src/api/index.ts,apps/web-antd/src/api/system/index.ts,apps/web-antd/src/views/system/**/modules/**,apps/web-antd/src/views/system/**/components/**
+            -Dsonar.cpd.exclusions=apps/web-antd/src/views/dashboard/**,apps/web-antd/src/views/system/**/data.ts,apps/web-antd/src/views/system/**/index.vue
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
