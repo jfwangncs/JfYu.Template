@@ -5,7 +5,7 @@ on:
     branches: [master]
 
 jobs:
-  gitleaks-history:
+  gitleaks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout full git history
