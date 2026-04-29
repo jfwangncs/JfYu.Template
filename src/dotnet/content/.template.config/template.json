@@ -1,0 +1,246 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "jfwang",
+  "classifications": ["Web", "WebAPI", "ASP.NET"],
+  "identity": "JfYu.WebAPI.Template",
+  "groupIdentity": "JfYu.WebAPI",
+  "name": "JfYu Web API",
+  "description": "A production-ready ASP.NET Core 10 Web API solution. Includes optional JWT authentication, role-based access control (RBAC), WeChat Mini Program login, OpenTelemetry tracing & metrics, Redis token store, and an xUnit test project.",
+  "shortName": "JfYuWebApi",
+  "icon": "icon.png",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "JfYu.WebApi.Template",
+  "preferNameDirectory": false,
+  "primaryOutputs": [
+    {
+      "path": "JfYu.WebApi.Template.slnx"
+    }
+  ],
+  "symbols": {
+    "JwtOption": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "Basic",
+      "displayName": "JWT Authentication",
+      "description": "Choose the JWT authentication strategy. 'None' disables auth entirely. 'Basic' uses in-memory token validation. 'Redis' stores tokens in Redis for distributed/multi-instance deployments.",
+      "choices": [
+        {
+          "choice": "None",
+          "displayName": "No Authentication",
+          "description": "No JWT authentication"
+        },
+        {
+          "choice": "Basic",
+          "displayName": "JWT",
+          "description": "JWT authentication without Redis"
+        },
+        {
+          "choice": "Redis",
+          "displayName": "JWT + Redis",
+          "description": "JWT authentication with Redis token store (recommended for multi-instance)"
+        }
+      ]
+    },
+    "EnableJWT": {
+      "type": "computed",
+      "value": "(JwtOption != \"None\")"
+    },
+    "EnableJWTRedis": {
+      "type": "computed",
+      "value": "(JwtOption == \"Redis\")"
+    },
+    "EnableWeChat": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "displayName": "WeChat Mini Program Login",
+      "description": "Add WeChat Mini Program OAuth login support via the JfYu.WeChat library."
+    },
+    "EnableTelemetry": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "displayName": "OpenTelemetry",
+      "description": "Include OpenTelemetry for distributed tracing, metrics, and OTLP/Prometheus export."
+    },
+    "EnableUnitTest": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "displayName": "Unit Test Project",
+      "description": "Add a companion xUnit test project with pre-wired service and controller tests."
+    },
+    "EnableRBAC": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "displayName": "RBAC (Role-Based Access Control)",
+      "description": "Include User / Role / Permission entities, EF Core migrations, and RBAC middleware. Requires JWT."
+    }
+  },
+  "sources": [
+    {
+      "exclude": [
+        "**/*.nuspec",
+        "**/.template.config/**",
+        "**/.vs/**",
+        "**/bin/**",
+        "**/obj/**"
+      ],
+      "modifiers": [
+        {
+          "condition": "(!EnableJWTRedis)",
+          "exclude": [
+            "JfYu.WebApi.Template/Constants/RedisKey.cs",
+            "JfYu.WebApi.Template/Services/RedisCacheService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IRedisCacheService.cs",
+            "JfYu.WebApi.Template/Controllers/RedisCacheController.cs",
+            "JfYu.WebApi.Template/Model/RedisCache/RedisCacheModels.cs",
+            "JfYu.WebApi.Template/Infrastructure/BlacklistMiddleware.cs"
+          ]
+        },
+        {
+          "condition": "(!EnableJWT)",
+          "exclude": [
+            "JfYu.WebApi.Template/Services/JwtService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IJwtService.cs",
+            "JfYu.WebApi.Template/Options/JwtSettings.cs"
+          ]
+        },
+        {
+          "condition": "(!EnableUnitTest)",
+          "exclude": ["JfYu.WebApi.Template.UnitTests/**"]
+        },
+        {
+          "condition": "(!EnableJWT || !EnableRBAC)",
+          "exclude": [
+            "JfYu.WebApi.Template/Controllers/AuthController.cs",
+            "JfYu.WebApi.Template/Controllers/RoleController.cs",
+            "JfYu.WebApi.Template/Controllers/PermissionController.cs",
+            "JfYu.WebApi.Template/Controllers/UserController.cs"
+          ]
+        },
+        {
+          "condition": "(!EnableJWT || !EnableUnitTest)",
+          "exclude": [
+            "JfYu.WebApi.Template.UnitTests/Services/JwtServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/AuthControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Validations/LoginRequestValidationTests.cs"
+          ]
+        },
+        {
+          "condition": "(!EnableJWTRedis || !EnableUnitTest)",
+          "exclude": [
+            "JfYu.WebApi.Template.UnitTests/Services/RedisCacheServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/RedisCacheControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Infrastructure/BlacklistMiddlewareTests.cs"
+          ]
+        },
+        {
+          "condition": "(!EnableRBAC || !EnableUnitTest)",
+          "exclude": [
+            "JfYu.WebApi.Template.UnitTests/TestBase/DbContextFactory.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/AuthControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/RoleServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/PermissionServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/UserServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/LoginLogServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/AuditLogServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/DictTypeServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/DictItemServiceTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/UserControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/RoleControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/DictControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Validations/RoleValidationTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Validations/DictValidationTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Attributes/PermissionAttributeTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Infrastructure/AuditInterceptorTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/AuditLogControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/LoginLogControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/PermissionControllerTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Services/CurrentUserTests.cs",
+            "JfYu.WebApi.Template.UnitTests/Controllers/CustomControllerTests.cs"
+          ]
+        },
+        {
+          "condition": "(!EnableRBAC)",
+          "exclude": [
+            "JfYu.WebApi.Template/Entity/User.cs",
+            "JfYu.WebApi.Template/Entity/Role.cs",
+            "JfYu.WebApi.Template/Entity/Permission.cs",
+            "JfYu.WebApi.Template/Entity/AppDbContext.cs",
+            "JfYu.WebApi.Template/Entity/DictType.cs",
+            "JfYu.WebApi.Template/Entity/DictItem.cs",
+            "JfYu.WebApi.Template/Entity/AuditLog.cs",
+            "JfYu.WebApi.Template/Entity/LoginLog.cs",
+            "JfYu.WebApi.Template/Constants/PermissionType.cs",
+            "JfYu.WebApi.Template/Constants/PermissionCodes.cs",
+            "JfYu.WebApi.Template/Infrastructure/AuditInterceptor.cs",
+            "JfYu.WebApi.Template/Controllers/LoginLogController.cs",
+            "JfYu.WebApi.Template/Controllers/DictTypeController.cs",
+            "JfYu.WebApi.Template/Controllers/DictItemController.cs",
+            "JfYu.WebApi.Template/Controllers/AuditLogController.cs",
+            "JfYu.WebApi.Template/Services/RoleService.cs",
+            "JfYu.WebApi.Template/Services/PermissionService.cs",
+            "JfYu.WebApi.Template/Services/UserService.cs",
+            "JfYu.WebApi.Template/Services/LoginLogService.cs",
+            "JfYu.WebApi.Template/Services/DictTypeService.cs",
+            "JfYu.WebApi.Template/Services/DictItemService.cs",
+            "JfYu.WebApi.Template/Services/AuditLogService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IRoleService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IPermissionService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IUserService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/ILoginLogService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IDictTypeService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IDictItemService.cs",
+            "JfYu.WebApi.Template/Services/Interfaces/IAuditLogService.cs",
+            "JfYu.WebApi.Template/Model/User/LoginRequest.cs",
+            "JfYu.WebApi.Template/Model/User/LoginResponse.cs",
+            "JfYu.WebApi.Template/Model/Role/CreateRoleRequest.cs",
+            "JfYu.WebApi.Template/Model/Role/UpdateRoleRequest.cs",
+            "JfYu.WebApi.Template/Model/Role/RoleResponse.cs",
+            "JfYu.WebApi.Template/Model/Role/AssignPermissionsRequest.cs",
+            "JfYu.WebApi.Template/Model/Permission/CreatePermissionRequest.cs",
+            "JfYu.WebApi.Template/Model/Permission/UpdatePermissionRequest.cs",
+            "JfYu.WebApi.Template/Model/Permission/PermissionResponse.cs",
+            "JfYu.WebApi.Template/Model/Permission/ScannedPermission.cs",
+            "JfYu.WebApi.Template/Model/DictType/CreateDictTypeRequest.cs",
+            "JfYu.WebApi.Template/Model/DictType/UpdateDictTypeRequest.cs",
+            "JfYu.WebApi.Template/Model/DictType/QueryDictTypeRequest.cs",
+            "JfYu.WebApi.Template/Model/DictType/DictTypeResponse.cs",
+            "JfYu.WebApi.Template/Model/DictItem/CreateDictItemRequest.cs",
+            "JfYu.WebApi.Template/Model/DictItem/UpdateDictItemRequest.cs",
+            "JfYu.WebApi.Template/Model/DictItem/QueryDictItemRequest.cs",
+            "JfYu.WebApi.Template/Model/DictItem/DictItemResponse.cs",
+            "JfYu.WebApi.Template/Model/AuditLog/QueryAuditLogRequest.cs",
+            "JfYu.WebApi.Template/Model/AuditLog/AuditLogResponse.cs",
+            "JfYu.WebApi.Template/Model/LoginLog/QueryLoginLogRequest.cs",
+            "JfYu.WebApi.Template/Model/LoginLog/LoginLogResponse.cs",
+            "JfYu.WebApi.Template/Validations/CreateRoleRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/UpdateRoleRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/UpdateUserRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/CreatePermissionRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/UpdatePermissionRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/CreateDictTypeRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/UpdateDictTypeRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/CreateDictItemRequestValidation.cs",
+            "JfYu.WebApi.Template/Validations/UpdateDictItemRequestValidation.cs",
+            "JfYu.WebApi.Template/Attributes/PermissionAttribute.cs",
+            "JfYu.WebApi.Template/Migrations/20260318074029_Init.cs",
+            "JfYu.WebApi.Template/Migrations/20260318074029_Init.Designer.cs",
+            "JfYu.WebApi.Template/Migrations/20260318074042_SeedInitialData.cs",
+            "JfYu.WebApi.Template/Migrations/20260318074042_SeedInitialData.Designer.cs",
+            "JfYu.WebApi.Template/Migrations/20260422101818_AddDictTypeAndDictItem.cs",
+            "JfYu.WebApi.Template/Migrations/20260422101818_AddDictTypeAndDictItem.Designer.cs",
+            "JfYu.WebApi.Template/Migrations/20260423030651_AddLoginLogFailReason.cs",
+            "JfYu.WebApi.Template/Migrations/20260423030651_AddLoginLogFailReason.Designer.cs",
+            "JfYu.WebApi.Template/Migrations/AppDbContextModelSnapshot.cs"
+          ]
+        }
+      ]
+    }
+  ]
+}

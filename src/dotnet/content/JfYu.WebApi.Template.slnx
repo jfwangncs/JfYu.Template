@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="JfYu.WebApi.Template\JfYu.WebApi.Template.csproj" />
+  <!--#if (EnableUnitTest)-->
+  <Project Path="JfYu.WebApi.Template.UnitTests\JfYu.WebApi.Template.UnitTests.csproj" />
+  <!--#endif-->
+</Solution>

@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>		
+		<Description>A production-ready ASP.NET Core 10 Web API template with optional JWT authentication, RBAC, WeChat Mini Program login, OpenTelemetry, Redis, and unit tests.</Description>
+		<PackageTags>dotnet;template;webapi;aspnetcore;jwt;rbac;wechat;opentelemetry</PackageTags>		 
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<TargetFramework>net10.0</TargetFramework> 
+		<Nullable>enable</Nullable> 
+		<ImplicitUsings>enable</ImplicitUsings> 
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+		<PackageReference Include="JfYu.Request" Version="10.0.1" />
+		<PackageReference Include="Asp.Versioning.Mvc" Version="10.0.0" />
+		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0" />
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+		<PackageReference Include="Mapster" Version="10.0.7" />
+		<!--#if (EnableJWT)-->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
+		<!--#endif-->
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="10.5.0" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.14.6" />
+		<PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="10.5.0" />
+		<PackageReference Include="NLog" Version="6.1.2" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="6.1.2" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
+		<PackageReference Include="NLog.DiagnosticSource" Version="6.0.3" />
+		<!--#if (EnableTelemetry)-->
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.15.3-beta.1" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.15.1-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.15.1-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.15.1-beta.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.HttpListener" Version="1.15.3-beta.1" />
+		<PackageReference Include="RabbitMQ.Client.OpenTelemetry" Version="1.0.0-rc.2" />
+		<!--#endif-->
+		<!--#if (EnableJWTRedis)-->
+		<PackageReference Include="JfYu.Redis" Version="10.0.1" />
+		<!--#endif-->
+		<!--#if (EnableWeChat)-->
+		<PackageReference Include="JfYu.WeChat" Version="10.0.1" />
+		<!--#endif-->
+		<!--#if (EnableRBAC)-->
+		<PackageReference Include="JfYu.Data" Version="10.0.1" />
+		<!--#endif-->
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="nlog.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup> 
+
+	<ItemGroup Condition="'$(IsPackable)' != 'false'"> 
+		<None Include="..\README.md" Pack="true" PackagePath="\" /> 
+	</ItemGroup>
+
+</Project>
