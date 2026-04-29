@@ -33,11 +33,3 @@ jobs:
           for file in $(find . -name "*.nupkg"); do
             dotnet nuget push "$file" -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate;
           done
-
-      - name: Push to GitHub Packages
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          for file in $(find . -name "*.nupkg"); do
-            dotnet nuget push "$file" -k "$GH_TOKEN" -s https://nuget.pkg.github.com/jfwangncs/index.json --skip-duplicate;
-          done
