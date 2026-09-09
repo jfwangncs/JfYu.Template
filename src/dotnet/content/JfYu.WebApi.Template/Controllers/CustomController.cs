@@ -6,6 +6,8 @@ using JfYu.WebApi.Template.Model;
 
 namespace JfYu.WebApi.Template.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class CustomController : ControllerBase
     {
         protected new OkObjectResult Ok()

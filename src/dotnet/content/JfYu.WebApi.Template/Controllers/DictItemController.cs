@@ -1,4 +1,4 @@
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using JfYu.WebApi.Template.Attributes;
@@ -10,9 +10,7 @@ using JfYu.WebApi.Template.Model.DictItem;
 using JfYu.WebApi.Template.Services.Interfaces;
 
 namespace JfYu.WebApi.Template.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
+{ 
     [Permission(PermissionCodes.DictType, PermissionType.Menu, parentCode: PermissionCodes.System)]
     public class DictItemController(IDictItemService dictItemService, IDictTypeService dictTypeService) : CustomController
     {

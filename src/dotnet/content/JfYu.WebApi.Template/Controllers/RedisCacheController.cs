@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 //#if (EnableRBAC)
 using JfYu.WebApi.Template.Attributes;
@@ -8,9 +8,7 @@ using JfYu.WebApi.Template.Model.RedisCache;
 using JfYu.WebApi.Template.Services.Interfaces;
 
 namespace JfYu.WebApi.Template.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
+{ 
     //#if (EnableRBAC)
     [Permission(PermissionCodes.RedisCache, PermissionType.Menu, parentCode: PermissionCodes.System)]
     //#endif

@@ -18,9 +18,7 @@ using JfYu.WebApi.Template.Exceptions;
 //#endif
 
 namespace JfYu.WebApi.Template.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
+{ 
     public class AuthController(IJwtService jwtService, IUserService userService, IOptions<JwtSettings> jwtSettings, ICurrentUser currentUser
         //#if (EnableRBAC)
         , ILoginLogService loginLogService
