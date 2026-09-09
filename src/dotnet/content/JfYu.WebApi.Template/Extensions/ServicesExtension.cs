@@ -79,8 +79,7 @@ namespace JfYu.WebApi.Template.Extensions
         {
             // API Versioning
             services.AddApiVersioning(options =>
-            {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
+            { 
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
                 options.ApiVersionReader = ApiVersionReader.Combine(
@@ -349,12 +348,9 @@ namespace JfYu.WebApi.Template.Extensions
         //#if (EnableRBAC)
         public static void UsePermissionSync(this WebApplication app)
         {
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var syncService = scope.ServiceProvider.GetRequiredService<IPermissionService>();
-                syncService.SyncAsync();
-            }
+            using var scope = app.Services.CreateScope();
+            var syncService = scope.ServiceProvider.GetRequiredService<IPermissionService>();
+            syncService.SyncAsync();
         }
         //#endif
     }
