@@ -135,6 +135,7 @@ All stores are initialized together via `initStores(app, { namespace })` from `@
 - **Pre-commit hook** (lefthook): Automatically runs prettier + eslint + stylelint on staged files. Use `pnpm commit` (czg) for guided commits.
 - **Adding new pages**: Create a `.vue` file under `src/views/`, add a route module under `src/router/routes/modules/`; if using backend mode, also ensure the backend API returns the corresponding menu data.
 - **Internationalization**: Use `$t('key')` throughout; locale files are in `packages/locales/`, and app-level i18n files are in `src/locales/langs`.
+- **Error messages come from the backend**: The .NET API returns `message` already localized by `Accept-Language` (see `src/dotnet/content/JfYu.WebApi.Template/Resources/EnumMessages.*.resx`). Do **not** create frontend `error.json` files or map `errorCode` to local strings — `request.ts` shows `response.data.message` directly.
 
 ## Modification Boundaries (IMPORTANT)
 

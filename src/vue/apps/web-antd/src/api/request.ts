@@ -15,7 +15,6 @@ import { useAccessStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
-import { $t } from '#/locales';
 import { useAuthStore } from '#/store';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
@@ -82,18 +81,9 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   // 通用的错误处理,如果没有进入上面的错误处理逻辑，就会进入这里
   client.addResponseInterceptor(
     errorMessageResponseInterceptor((msg: string, error) => {
-      // 这里可以根据业务进行定制,你可以拿到 error 内的信息进行定制化处理，根据不同的 code 做不同的提示，而不是直接使用 message.error 提示 msg
-      // 当前mock接口返回的错误字段是 error 或者 message
+      // 错误提示由后端统一返回（已按 Accept-Language 本地化），前端直接展示 message。
       const responseData = error?.response?.data ?? {};
-      const errorCode = responseData?.errorCode;
-      const localeKey = errorCode ? `error.${errorCode}` : '';
-      const localizedMessage = localeKey ? $t(localeKey) : '';
-      // If locale key is missing, vue-i18n returns the key itself (e.g. error.4151).
-      const errorMessage =
-        localizedMessage && localizedMessage !== localeKey
-          ? localizedMessage
-          : (responseData?.message ?? '');
-      message.error(errorMessage || msg);
+      message.error(responseData?.message || msg);
     }),
   );
 
