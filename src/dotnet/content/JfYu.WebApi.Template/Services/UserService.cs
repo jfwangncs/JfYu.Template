@@ -208,10 +208,7 @@ namespace JfYu.WebApi.Template.Services
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequest request, CancellationToken cancellationToken = default)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-            if (user == null)
-                throw new BusinessException(ErrorCode.UserNotFound);
-
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken) ?? throw new BusinessException(ErrorCode.UserNotFound);
             if (string.IsNullOrEmpty(user.Password) || !BCrypt.Net.BCrypt.Verify(request.OldPassword, user.Password))
                 throw new BusinessException(ErrorCode.InvalidOldPassword);
 
@@ -221,10 +218,7 @@ namespace JfYu.WebApi.Template.Services
 
         public async Task<bool> UpdateProfileAsync(int userId, UpdateProfileRequest request, CancellationToken cancellationToken = default)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-            if (user == null)
-                throw new BusinessException(ErrorCode.UserNotFound);
-
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken) ?? throw new BusinessException(ErrorCode.UserNotFound);
             if (request.NickName != null) user.NickName = request.NickName;
             if (request.RealName != null) user.RealName = request.RealName;
             if (request.Phone != null) user.Phone = request.Phone;

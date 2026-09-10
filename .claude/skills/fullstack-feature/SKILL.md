@@ -212,13 +212,31 @@ Open `src/dotnet/content/JfYu.WebApi.Template/Constants/ErrorCode.cs`.
 
 ```csharp
 #region Product
-[Description("Product not found.")]
 ProductNotFound = 4250,
 
-[Description("Duplicate product name.")]
 DuplicateProduct,
 #endregion
 ```
+
+Then add the display text to the resource files (keys follow `ErrorCode.{MemberName}`):
+
+`src/dotnet/content/JfYu.WebApi.Template/Resources/EnumMessages.resx` (English):
+
+```xml
+<data name="ErrorCode.ProductNotFound" xml:space="preserve">
+  <value>Product not found.</value>
+</data>
+```
+
+`src/dotnet/content/JfYu.WebApi.Template/Resources/EnumMessages.zh-CN.resx` (Chinese):
+
+```xml
+<data name="ErrorCode.ProductNotFound" xml:space="preserve">
+  <value>商品不存在。</value>
+</data>
+```
+
+To add another language (e.g., French, German), add `EnumMessages.fr.resx` / `EnumMessages.de.resx` with the same keys and register the culture in `AddCustomLocalization()`.
 
 ---
 

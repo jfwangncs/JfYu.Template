@@ -31,6 +31,7 @@ try
 
     builder.Services.AddControllers();
     builder.Services.AddCustomCoreAPI()
+        .AddCustomLocalization()
         .AddCustomCors()
         .AddCustomScalar()
         .AddCustomApiVersioning()
@@ -49,6 +50,8 @@ try
     var app = builder.Build();
 
     app.UseCors("AllowAll");
+
+    app.UseRequestLocalization();
 
     app.UseHttpLogging();
 

@@ -116,10 +116,9 @@ namespace JfYu.WebApi.Template.Services
             }
 
             // 去重
-            return result
+            return [.. result
                 .GroupBy(x => x.Code)
-                .Select(g => g.First())
-                .ToList();
+                .Select(g => g.First())];
         }
 
 

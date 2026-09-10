@@ -276,5 +276,5 @@ dotnet nuget push ./artifacts/JfYu.WebApi.Template.1.0.0.nupkg \
 - Secrets must never be committed — use `dotnet user-secrets` in development.
 - Never edit migration files manually (in `WebApi/Migrations/`).
 - The `#if` / `<!--#if-->` directive comments in source files are template engine markers — do not remove them.
-- Enum values carry `[Description]` attributes; use `.GetDescription()` for display text.
+- Enum display text lives in `Resources/EnumMessages.resx` (English) and `EnumMessages.<culture>.resx` variants; `.GetDescription()` resolves the language per request via `Accept-Language`. Add a language by adding a new `.resx` and registering the culture.
 - Throw `BusinessException(ErrorCode.XxxError)` from service layer; the global exception handler converts them to structured `BadRequest` responses.

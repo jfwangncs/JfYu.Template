@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.Logging;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Http.Diagnostics;
@@ -25,12 +26,14 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 //#endif 
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using JfYu.WebApi.Template.Constants;
+using JfYu.WebApi.Template.Resources;
 using JfYu.WebApi.Template.Exceptions;
 using JfYu.WebApi.Template.Model;
 //#if (EnableJWT)
@@ -148,16 +151,14 @@ namespace JfYu.WebApi.Template.Extensions
             return services;
             static string GetEnumDescription(Type enumType, string enumName)
             {
+                var key = $"{enumType.Name}.{enumName}";
+                var localized = EnumResources.GetString(key, CultureInfo.InvariantCulture);
+                if (!string.IsNullOrEmpty(localized))
+                    return localized;
+
                 var memberInfo = enumType.GetMember(enumName).FirstOrDefault();
-                if (memberInfo != null)
-                {
-                    var descriptionAttribute = memberInfo.GetCustomAttribute<DescriptionAttribute>();
-                    if (descriptionAttribute != null)
-                    {
-                        return descriptionAttribute.Description;
-                    }
-                }
-                return string.Empty;
+                var descriptionAttribute = memberInfo?.GetCustomAttribute<DescriptionAttribute>();
+                return descriptionAttribute?.Description ?? string.Empty;
             }
         }
 
@@ -300,6 +301,19 @@ namespace JfYu.WebApi.Template.Extensions
                            .AllowAnyMethod()
                            .AllowAnyHeader();
                 });
+            });
+            return services;
+        }
+
+        public static IServiceCollection AddCustomLocalization(this IServiceCollection services)
+        {
+            services.AddLocalization();
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("zh-CN") };
+                options.DefaultRequestCulture = new RequestCulture("en-US");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
             });
             return services;
         }

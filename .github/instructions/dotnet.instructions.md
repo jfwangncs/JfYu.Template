@@ -226,7 +226,7 @@ dotnet user-secrets set "JwtSettings:SecretKey" "<value>" --project src/dotnet/c
 
 ## Key Conventions
 
-- Enum values should carry `[Description("...")]` attributes; use `.GetDescription()` extension for display text.
+- Enum display text is resolved from `Resources/EnumMessages.resx` (English) and culture variants such as `EnumMessages.zh-CN.resx`; `.GetDescription()` picks the language from the request's `Accept-Language` header. To add a language (e.g., French, German), add `EnumMessages.<culture>.resx` and register the culture in `AddCustomLocalization()`.
 - Throw `BusinessException(ErrorCode.XxxError)` from service layer for domain errors; the global exception handler converts these to structured `BadRequest` responses.
 - All controller actions return `IActionResult`; never return raw objects or use `ActionResult<T>`.
 - Async/await throughout — no `.Result` or `.Wait()`.
