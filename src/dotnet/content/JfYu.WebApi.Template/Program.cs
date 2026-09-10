@@ -33,7 +33,6 @@ try
     builder.Services.AddCustomCoreAPI()
         .AddCustomLocalization()
         .AddCustomCors()
-        .AddCustomScalar()
         .AddCustomApiVersioning()
         .AddCustomFluentValidation()
         .AddMapster()
@@ -57,8 +56,17 @@ try
 
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
-        app.MapScalarApiReference();
+        app.MapOpenApi().WithDocumentPerVersion();
+        app.MapScalarApiReference(options =>
+        {
+            var descriptions = app.DescribeApiVersions();
+            for (var i = 0; i < descriptions.Count; i++)
+            {
+                var description = descriptions[i];
+                var isDefault = i == 0;
+                options.AddDocument(description.GroupName, description.GroupName, isDefault: isDefault);
+            }
+        });
     }
     //#if (EnableJWT)
     app.UseAuthentication();

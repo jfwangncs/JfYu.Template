@@ -157,7 +157,7 @@ This project is based on the **Vben Admin** framework, which ships as a Monorepo
 - `scripts/**` — CLI tools (`vsh`, `turbo-run`)
 - `apps/web-antd/src/{main.ts, bootstrap.ts, preferences.ts, layouts/**}` — framework wiring; only edit if absolutely required and document why
 
-### When you need behaviour the framework doesn't expose
+### When you need behavior the framework doesn't expose
 
 1. Try the adapter layer first (`apps/web-antd/src/adapter/`).
 2. Wrap the framework component in a thin business component under `apps/web-antd/src/components/`.

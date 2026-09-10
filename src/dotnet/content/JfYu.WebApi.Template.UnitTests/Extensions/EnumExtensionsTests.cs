@@ -7,7 +7,7 @@ namespace JfYu.WebApi.Template.UnitTests.Extensions
 {
     public class EnumExtensionsTests
     {
-        private enum SampleEnum
+        private enum Sample
         {
             [Description("first option")]
             First = 1,
@@ -21,14 +21,14 @@ namespace JfYu.WebApi.Template.UnitTests.Extensions
         [Fact]
         public void GetDescription_ReturnsAttributeText_WhenPresent()
         {
-            SampleEnum.First.GetDescription().Should().Be("first option");
-            SampleEnum.Second.GetDescription().Should().Be("second option");
+            Sample.First.GetDescription().Should().Be("first option");
+            Sample.Second.GetDescription().Should().Be("second option");
         }
 
         [Fact]
         public void GetDescription_FallsBackToEnumName_WhenAttributeMissing()
         {
-            SampleEnum.NoDescription.GetDescription().Should().Be(nameof(SampleEnum.NoDescription));
+            Sample.NoDescription.GetDescription().Should().Be(nameof(Sample.NoDescription));
         }
 
         [Theory]

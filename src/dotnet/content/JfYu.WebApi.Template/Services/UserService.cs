@@ -64,7 +64,9 @@ namespace JfYu.WebApi.Template.Services
         //#if (EnableWeChat)
         private async Task<User> LoginWechatAsync(LoginRequest login)
         {
-            var authSession = await _miniProgram.LoginAsync(login.Code!);
+            if (string.IsNullOrEmpty(login.Code))
+                throw new BusinessException(ErrorCode.UserNotFound);
+            var authSession = await _miniProgram.LoginAsync(login.Code);
 
             if (authSession == null || !string.IsNullOrEmpty(authSession.ErrorMessage))
                 throw new BusinessException(ErrorCode.UserNotFound);

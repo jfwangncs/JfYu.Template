@@ -88,20 +88,14 @@ namespace JfYu.WebApi.Template.Extensions
                 options.ApiVersionReader = ApiVersionReader.Combine(
                      new QueryStringApiVersionReader("api-version"),
                      new HeaderApiVersionReader("x-api-version"));
-            }).AddApiExplorer(options =>
+            }).AddMvc().AddApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
-            });
-            return services;
-        }
-
-        public static IServiceCollection AddCustomScalar(this IServiceCollection services)
-        {
-            services.AddEndpointsApiExplorer();
-            services.AddOpenApi(options =>
+            }).AddOpenApi(options =>
             {
-                options.AddSchemaTransformer((schema, context, cancellationToken) =>
+                var openApi = options.Document;
+                openApi.AddSchemaTransformer((schema, context, cancellationToken) =>
                 {
                     var type = context.JsonTypeInfo.Type;
                     var enumType = Nullable.GetUnderlyingType(type) ?? type;
@@ -115,8 +109,8 @@ namespace JfYu.WebApi.Template.Extensions
                         foreach (var value in Enum.GetValues(enumType))
                         {
                             var intValue = Convert.ToInt32(value);
-                            var name = Enum.GetName(enumType, value);
-                            var description = GetEnumDescription(enumType, name!);
+                            var name = Enum.GetName(enumType, value) ?? string.Empty;
+                            var description = GetEnumDescription(enumType, name);
 
                             if (!string.IsNullOrEmpty(description))
                                 descriptions.Add($"{intValue} = {name} ({description})");
@@ -128,7 +122,7 @@ namespace JfYu.WebApi.Template.Extensions
                     }
                     return Task.CompletedTask;
                 });
-                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                openApi.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
 
                     document.Components ??= new();
