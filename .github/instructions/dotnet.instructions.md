@@ -44,9 +44,10 @@ Instead, use **two complementary techniques**:
 
 2. **Inline `//#if` blocks** — only for files that exist regardless of flags but contain some flag-specific code (e.g., `InjectionExtension.cs`, `Program.cs`, `appsettings.json`).
 
-**Decision rule**: If a file has *no content at all* when a flag is disabled, it belongs in `template.json` excludes, not in an `#if` wrapper.
+**Decision rule**: If a file has _no content at all_ when a flag is disabled, it belongs in `template.json` excludes, not in an `#if` wrapper.
 
 **Naming conflicts with StackExchange.Redis.RedisKey**: When the project's `Constants.RedisKey` and `StackExchange.Redis.RedisKey` are both in scope, add a using alias:
+
 ```csharp
 using AppRedisKey = JfYu.WebApi.Template.Constants.RedisKey;
 ```
@@ -149,10 +150,12 @@ Services extend `Service<TEntity, TDbContext>` from `JfYu.Data` which provides:
 ### Redis Cache Invalidation
 
 When a service operation changes data that is cached in Redis (e.g. user permissions), invalidate the cache immediately after the DB write. Inject `IRedisService` and call:
+
 - `_redisService.RemoveAsync(key)` — single key
 - `_redisService.RemoveAllAsync(List<string> keys)` — batch keys
 
 Wrap the injection and calls in `//#if (EnableJWTRedis)` blocks. Example in `RoleService.AssignPermissionsAsync`:
+
 ```csharp
 //#if (EnableJWTRedis)
 var cacheKeys = affectedUserIds.Select(id => string.Format(AppRedisKey.UserPermission, id)).ToList();
@@ -232,4 +235,3 @@ dotnet user-secrets set "JwtSettings:SecretKey" "<value>" --project src/dotnet/c
 - Async/await throughout — no `.Result` or `.Wait()`.
 - Nullable reference types are enabled (`<Nullable>enable</Nullable>`).
 - Model DTOs go in `Model/<FeatureName>/` subdirectories — not in generic `Model/Request/` or `Model/Response/` folders.
-

@@ -73,7 +73,7 @@ namespace JfYu.WebApi.Template.Extensions
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
-            services.AddHttpContextAccessor();   
+            services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUser, CurrentUser>();
             return services;
         }
@@ -82,7 +82,7 @@ namespace JfYu.WebApi.Template.Extensions
         {
             // API Versioning
             services.AddApiVersioning(options =>
-            { 
+            {
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
                 options.ApiVersionReader = ApiVersionReader.Combine(
