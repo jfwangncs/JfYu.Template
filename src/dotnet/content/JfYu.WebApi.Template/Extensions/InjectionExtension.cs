@@ -15,6 +15,7 @@ using JfYu.WebApi.Template.Services.Interfaces;
 //#if (EnableRBAC)
 using JfYu.WebApi.Template.Entity;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using JfYu.Data.MySql;
 //#endif
 
 namespace JfYu.WebApi.Template.Extensions
@@ -38,7 +39,7 @@ namespace JfYu.WebApi.Template.Extensions
 
             //#if (EnableRBAC)
             services.AddScoped<IInterceptor, AuditInterceptor>();
-            services.AddJfYuDbContext<AppDbContext>(options =>
+            services.AddJfYuMySql().AddJfYuDbContext<AppDbContext>(options =>
             {
                 configuration.GetSection("ConnectionStrings").Bind(options);
             });

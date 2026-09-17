@@ -22,13 +22,13 @@
 		<!--#if (EnableJWT)-->
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
 		<!--#endif-->
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="10.9.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="10.10.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-		<PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
-		<PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="10.9.0" />
-		<PackageReference Include="NLog" Version="6.2.0" />
-		<PackageReference Include="NLog.Extensions.Logging" Version="6.2.0" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="6.2.0" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.17.4" />
+		<PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="10.10.0" />
+		<PackageReference Include="NLog" Version="6.2.1" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="6.2.1" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="6.2.1" />
 		<PackageReference Include="NLog.DiagnosticSource" Version="6.1.4" />
 		<!--#if (EnableTelemetry)-->
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.18.0" />
@@ -50,7 +50,8 @@
 		<PackageReference Include="JfYu.WeChat" Version="10.0.2" />
 		<!--#endif-->
 		<!--#if (EnableRBAC)-->
-		<PackageReference Include="JfYu.Data" Version="10.0.2" />
+		<PackageReference Include="JfYu.Data" Version="10.1.0" />
+		<PackageReference Include="JfYu.Data.Mysql" Version="10.1.0" />
 		<!--#endif-->
 	</ItemGroup>
 
