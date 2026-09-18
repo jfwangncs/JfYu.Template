@@ -96,6 +96,13 @@ These represent the business surface that ships with this template. The `.vue` U
 
 The CI gate requires **≥ 90 % line coverage** on the instrumented files (currently 100 %).
 
+## Build & Release
+
+- **Build output**: `pnpm --filter @vben/web-antd build` → `apps/web-antd/dist`.
+- **Docker**: root `Dockerfile` (Node build → nginx), container listens on `8080`.
+- **Release**: versions follow SemVer and are driven by git tags — `git tag 1.2.3 && git push origin 1.2.3` triggers `.github/workflows/docker-push.yml`, pushing `jfyu-web:<tag>` + `:latest`.
+- **API base URL**: set `VITE_GLOB_API_URL` in `apps/web-antd/.env.production` before building.
+
 ## Backend Integration
 
 The frontend talks to the backend defined in [`../dotnet/`](../dotnet/README.md). Configure the API base URL via environment variables in `apps/web-antd/.env.development` / `.env.production`.

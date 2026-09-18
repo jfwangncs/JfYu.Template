@@ -1,8 +1,10 @@
-﻿using System.Reflection;
+﻿using Asp.Versioning;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JfYu.WebApi.Template.Controllers
+namespace JfYu.WebApi.Template.Controllers.V2
 {
+    [ApiVersion("2.0")]
     public class VersionController : CustomController
     {
         [HttpGet]
@@ -21,6 +23,7 @@ namespace JfYu.WebApi.Template.Controllers
 
             return Ok(new
             {
+                apiVersion = 2.0,
                 name = assembly.GetName().Name,
                 version = version ?? assemblyVersion,
                 informationalVersion = informationalVersion,

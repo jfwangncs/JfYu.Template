@@ -161,6 +161,21 @@ Includes the `WebApi.UnitTests` project with:
 
 ---
 
+## Release & Versioning
+
+Versions follow SemVer and are driven by **git tags** (the CI does not auto-number versions):
+
+```bash
+git tag 1.2.3 && git push origin 1.2.3   # release 1.2.3
+git tag 2.0.0 && git push origin 2.0.0   # release a major version
+```
+
+Pushing a tag triggers `docker-push.yml`, which builds and pushes the image `jfyu-webapi:<tag>` + `:latest`, and bakes the version into the assembly.
+
+The running app exposes `GET /api/version` to report the current version (read from assembly metadata, no external dependency).
+
+---
+
 ## Project Structure (generated)
 
 ```

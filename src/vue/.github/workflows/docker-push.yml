@@ -2,8 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - '*.*.*'
 
 jobs:
   build-and-push:
@@ -35,5 +35,5 @@ jobs:
           file: ./src/vue/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/jfyu-web:v${{ github.run_number }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/jfyu-web:${{ github.ref_name }}
             ${{ secrets.DOCKERHUB_USERNAME }}/jfyu-web:latest

@@ -2,8 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - "*.*.*"
 
 jobs:
   build-and-push:
@@ -34,6 +34,8 @@ jobs:
           context: ./src/dotnet/content/JfYu.WebApi.Template
           file: ./src/dotnet/content/JfYu.WebApi.Template/Dockerfile
           push: true
+          build-args: |
+            VERSION=${{ github.ref_name }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/jfyu-webapi:v${{ github.run_number }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/jfyu-webapi:${{ github.ref_name }}
             ${{ secrets.DOCKERHUB_USERNAME }}/jfyu-webapi:latest

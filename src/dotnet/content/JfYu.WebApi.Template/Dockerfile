@@ -6,6 +6,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+# Version baked into the assembly; override at build time, e.g. --build-arg VERSION=1.0.42
+ARG VERSION=1.0.0
+
 # Copy only the project file first to leverage Docker layer caching for NuGet restore.
 COPY ["JfYu.WebApi.Template.csproj", "./"]
 RUN dotnet restore "JfYu.WebApi.Template.csproj"
@@ -17,7 +20,8 @@ RUN dotnet publish "JfYu.WebApi.Template.csproj" \
     --output /app/publish \
     --no-restore \
     --property:UseAppHost=false \
-    --property:IsPackable=false
+    --property:IsPackable=false \
+    --property:Version=${VERSION}
 
 # ---------- Runtime stage ----------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

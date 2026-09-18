@@ -4,7 +4,8 @@
 		<Description>A production-ready ASP.NET Core 10 Web API template with optional JWT authentication, RBAC, WeChat Mini Program login, OpenTelemetry, Redis, and unit tests.</Description>
 		<PackageTags>dotnet;template;webapi;aspnetcore;jwt;rbac;wechat;opentelemetry</PackageTags>		 
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<TargetFramework>net10.0</TargetFramework> 
+		<TargetFramework>net10.0</TargetFramework>  
+		<Version>1.0.0</Version>
 		<Nullable>enable</Nullable> 
 		<ImplicitUsings>enable</ImplicitUsings> 
 	</PropertyGroup>
