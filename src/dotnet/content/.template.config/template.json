@@ -179,6 +179,7 @@
             "JfYu.WebApi.Template/Constants/PermissionType.cs",
             "JfYu.WebApi.Template/Constants/PermissionCodes.cs",
             "JfYu.WebApi.Template/Infrastructure/AuditInterceptor.cs",
+            "JfYu.WebApi.Template/Infrastructure/DbHealthCheck.cs",
             "JfYu.WebApi.Template/Controllers/LoginLogController.cs",
             "JfYu.WebApi.Template/Controllers/DictTypeController.cs",
             "JfYu.WebApi.Template/Controllers/DictItemController.cs",

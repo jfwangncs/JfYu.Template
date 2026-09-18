@@ -2,6 +2,7 @@
 //#if (EnableJWTRedis)
 using JfYu.WebApi.Template.Infrastructure;
 //#endif
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -30,6 +31,11 @@ try
     //#endif
 
     builder.Services.AddControllers();
+    builder.Services.AddHealthChecks()
+        //#if (EnableRBAC)
+        .AddCheck<JfYu.WebApi.Template.Infrastructure.DbHealthCheck>("database")
+        //#endif
+        ;
     builder.Services.AddCustomCoreAPI()
         .AddCustomLocalization()
         .AddCustomCors()
@@ -85,6 +91,26 @@ try
     //#if (EnableTelemetry)
     app.UseOpenTelemetryPrometheusScrapingEndpoint();
     //#endif
+
+    app.MapHealthChecks("/api/health", new HealthCheckOptions
+    {
+        ResponseWriter = async (context, report) =>
+        {
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                status = report.Status.ToString(),
+                checks = report.Entries.Select(entry => new
+                {
+                    name = entry.Key,
+                    status = entry.Value.Status.ToString(),
+                    description = entry.Value.Description,
+                    duration = entry.Value.Duration
+                }),
+                totalDuration = report.TotalDuration
+            });
+        }
+    });
 
     app.MapControllers();
 

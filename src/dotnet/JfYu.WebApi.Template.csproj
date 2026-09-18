@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <!-- The package metadata. Fill in the properties marked as TODO below -->
-    <!-- Follow the instructions on https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices -->
+  <PropertyGroup> 
     <PackageId>JfYu.WebApi.Template</PackageId>
     <PackageVersion>1.0.1</PackageVersion>
     <Title>JfYu WebAPI Template</Title>

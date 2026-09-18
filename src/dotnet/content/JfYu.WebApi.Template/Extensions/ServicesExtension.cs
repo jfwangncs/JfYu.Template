@@ -83,7 +83,11 @@ namespace JfYu.WebApi.Template.Extensions
             // API Versioning
             services.AddApiVersioning(options =>
             {
+                // Controllers intentionally rely on the default API version (1.0) when the client omits it,
+                // so AV0016 ("setting is only necessary for APIs without an explicit version") is expected.
+#pragma warning disable AV0016
                 options.AssumeDefaultVersionWhenUnspecified = true;
+#pragma warning restore AV0016
                 options.ReportApiVersions = true;
                 options.ApiVersionReader = ApiVersionReader.Combine(
                      new QueryStringApiVersionReader("api-version"),
@@ -214,6 +218,7 @@ namespace JfYu.WebApi.Template.Extensions
                 op.ExcludePathStartsWith.Add("/scalar");
                 op.ExcludePathStartsWith.Add("/openapi");
                 op.ExcludePathStartsWith.Add("/metrics");
+                op.ExcludePathStartsWith.Add("/health");
                 op.IncludeUnmatchedRoutes = true;
             });
 #pragma warning restore EXTEXP0013
