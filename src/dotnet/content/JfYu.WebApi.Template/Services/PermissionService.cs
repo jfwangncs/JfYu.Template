@@ -14,7 +14,7 @@ using JfYu.WebApi.Template.Services.Interfaces;
 
 namespace JfYu.WebApi.Template.Services
 {
-    public class PermissionService(AppDbContext context, ReadonlyDBContext<AppDbContext> readonlyDBContext, ILogger<Permission> _logger) : Service<Permission, AppDbContext>(context, readonlyDBContext), IPermissionService
+    public class PermissionService(AppDbContext context, ReadonlyDBContext<AppDbContext> readonlyDBContext, ILogger<PermissionService> _logger) : Service<Permission, AppDbContext>(context, readonlyDBContext), IPermissionService
     {
         public void SyncAsync()
         {

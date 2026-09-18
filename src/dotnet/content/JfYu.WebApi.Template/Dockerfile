@@ -30,6 +30,9 @@ WORKDIR /app
 # The official ASP.NET Core images listen on port 8080 by default.
 EXPOSE 8080
 
+# Run as the built-in non-root "app" user (UID 1654) instead of root.
+USER $APP_UID
+
 COPY --from=build /app/publish .
 
 ENTRYPOINT ["dotnet", "JfYu.WebApi.Template.dll"]

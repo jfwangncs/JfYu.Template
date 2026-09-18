@@ -85,7 +85,7 @@ namespace JfYu.WebApi.Template.Attributes
                         .Where(p => p.Status == 1 && p.Type == PermissionType.Button)
                         .Select(p => p.Code)
                         .Distinct()
-                        .ToListAsync();
+                        .ToListAsync(httpContext.RequestAborted);
 
                     await redis.AddAsync(cacheKey, dbPerms, PermissionCacheTtl);
                     return [.. dbPerms];
