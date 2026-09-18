@@ -3,6 +3,9 @@
 using JfYu.WebApi.Template.Infrastructure;
 //#endif
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using JfYu.WebApi.Template.Constants;
+using JfYu.WebApi.Template.Model;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -97,18 +100,29 @@ try
         ResponseWriter = async (context, report) =>
         {
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new
+            var response = new BaseResponse<object>
             {
-                status = report.Status.ToString(),
-                checks = report.Entries.Select(entry => new
+                Data = new
                 {
-                    name = entry.Key,
-                    status = entry.Value.Status.ToString(),
-                    description = entry.Value.Description,
-                    duration = entry.Value.Duration
-                }),
-                totalDuration = report.TotalDuration
-            });
+                    status = report.Status.ToString(),
+                    checks = report.Entries.Select(entry => new
+                    {
+                        name = entry.Key,
+                        status = entry.Value.Status.ToString(),
+                        description = entry.Value.Description,
+                        duration = entry.Value.Duration
+                    }),
+                    totalDuration = report.TotalDuration
+                }
+            };
+
+            if (report.Status != HealthStatus.Healthy)
+            {
+                response.Code = ResponseCode.Failed;
+                response.Message = ResponseCode.Failed.GetDescription();
+            }
+
+            await context.Response.WriteAsJsonAsync(response);
         }
     });
 
