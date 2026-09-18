@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.Logging;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Http.Diagnostics;
@@ -25,12 +26,14 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 //#endif 
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using JfYu.WebApi.Template.Constants;
+using JfYu.WebApi.Template.Resources;
 using JfYu.WebApi.Template.Exceptions;
 using JfYu.WebApi.Template.Model;
 //#if (EnableJWT)
@@ -70,7 +73,13 @@ namespace JfYu.WebApi.Template.Extensions
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
-            services.AddHttpContextAccessor();   
+            services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                options.SerializerOptions.PropertyNameCaseInsensitive = true;
+                options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
+            services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUser, CurrentUser>();
             return services;
         }
@@ -80,26 +89,23 @@ namespace JfYu.WebApi.Template.Extensions
             // API Versioning
             services.AddApiVersioning(options =>
             {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
+                // Controllers intentionally rely on the default API version (1.0) when the client omits it,
+                // so AV0016 ("setting is only necessary for APIs without an explicit version") is expected.
+#pragma warning disable AV0016
                 options.AssumeDefaultVersionWhenUnspecified = true;
+#pragma warning restore AV0016
                 options.ReportApiVersions = true;
                 options.ApiVersionReader = ApiVersionReader.Combine(
                      new QueryStringApiVersionReader("api-version"),
                      new HeaderApiVersionReader("x-api-version"));
-            }).AddApiExplorer(options =>
+            }).AddMvc().AddApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
-            });
-            return services;
-        }
-
-        public static IServiceCollection AddCustomScalar(this IServiceCollection services)
-        {
-            services.AddEndpointsApiExplorer();
-            services.AddOpenApi(options =>
+            }).AddOpenApi(options =>
             {
-                options.AddSchemaTransformer((schema, context, cancellationToken) =>
+                var openApi = options.Document;
+                openApi.AddSchemaTransformer((schema, context, cancellationToken) =>
                 {
                     var type = context.JsonTypeInfo.Type;
                     var enumType = Nullable.GetUnderlyingType(type) ?? type;
@@ -113,8 +119,8 @@ namespace JfYu.WebApi.Template.Extensions
                         foreach (var value in Enum.GetValues(enumType))
                         {
                             var intValue = Convert.ToInt32(value);
-                            var name = Enum.GetName(enumType, value);
-                            var description = GetEnumDescription(enumType, name!);
+                            var name = Enum.GetName(enumType, value) ?? string.Empty;
+                            var description = GetEnumDescription(enumType, name);
 
                             if (!string.IsNullOrEmpty(description))
                                 descriptions.Add($"{intValue} = {name} ({description})");
@@ -126,7 +132,7 @@ namespace JfYu.WebApi.Template.Extensions
                     }
                     return Task.CompletedTask;
                 });
-                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                openApi.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
 
                     document.Components ??= new();
@@ -149,16 +155,14 @@ namespace JfYu.WebApi.Template.Extensions
             return services;
             static string GetEnumDescription(Type enumType, string enumName)
             {
+                var key = $"{enumType.Name}.{enumName}";
+                var localized = EnumResources.GetString(key, CultureInfo.InvariantCulture);
+                if (!string.IsNullOrEmpty(localized))
+                    return localized;
+
                 var memberInfo = enumType.GetMember(enumName).FirstOrDefault();
-                if (memberInfo != null)
-                {
-                    var descriptionAttribute = memberInfo.GetCustomAttribute<DescriptionAttribute>();
-                    if (descriptionAttribute != null)
-                    {
-                        return descriptionAttribute.Description;
-                    }
-                }
-                return string.Empty;
+                var descriptionAttribute = memberInfo?.GetCustomAttribute<DescriptionAttribute>();
+                return descriptionAttribute?.Description ?? string.Empty;
             }
         }
 
@@ -220,6 +224,7 @@ namespace JfYu.WebApi.Template.Extensions
                 op.ExcludePathStartsWith.Add("/scalar");
                 op.ExcludePathStartsWith.Add("/openapi");
                 op.ExcludePathStartsWith.Add("/metrics");
+                op.ExcludePathStartsWith.Add("/health");
                 op.IncludeUnmatchedRoutes = true;
             });
 #pragma warning restore EXTEXP0013
@@ -305,6 +310,19 @@ namespace JfYu.WebApi.Template.Extensions
             return services;
         }
 
+        public static IServiceCollection AddCustomLocalization(this IServiceCollection services)
+        {
+            services.AddLocalization();
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("zh-CN") };
+                options.DefaultRequestCulture = new RequestCulture("en-US");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
+            return services;
+        }
+
         public static void UseCustomExceptionHandler(this WebApplication app)
         {
             app.UseExceptionHandler(exceptionHandlerApp =>
@@ -349,12 +367,9 @@ namespace JfYu.WebApi.Template.Extensions
         //#if (EnableRBAC)
         public static void UsePermissionSync(this WebApplication app)
         {
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var syncService = scope.ServiceProvider.GetRequiredService<IPermissionService>();
-                syncService.SyncAsync();
-            }
+            using var scope = app.Services.CreateScope();
+            var syncService = scope.ServiceProvider.GetRequiredService<IPermissionService>();
+            syncService.SyncAsync();
         }
         //#endif
     }

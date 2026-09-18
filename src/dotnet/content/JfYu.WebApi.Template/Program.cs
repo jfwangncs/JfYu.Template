@@ -2,6 +2,10 @@
 //#if (EnableJWTRedis)
 using JfYu.WebApi.Template.Infrastructure;
 //#endif
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using JfYu.WebApi.Template.Constants;
+using JfYu.WebApi.Template.Model;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -30,9 +34,14 @@ try
     //#endif
 
     builder.Services.AddControllers();
+    builder.Services.AddHealthChecks()
+        //#if (EnableRBAC)
+        .AddCheck<JfYu.WebApi.Template.Infrastructure.DbHealthCheck>("database")
+        //#endif
+        ;
     builder.Services.AddCustomCoreAPI()
+        .AddCustomLocalization()
         .AddCustomCors()
-        .AddCustomScalar()
         .AddCustomApiVersioning()
         .AddCustomFluentValidation()
         .AddMapster()
@@ -50,12 +59,23 @@ try
 
     app.UseCors("AllowAll");
 
+    app.UseRequestLocalization();
+
     app.UseHttpLogging();
 
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
-        app.MapScalarApiReference();
+        app.MapOpenApi().WithDocumentPerVersion();
+        app.MapScalarApiReference(options =>
+        {
+            var descriptions = app.DescribeApiVersions();
+            for (var i = 0; i < descriptions.Count; i++)
+            {
+                var description = descriptions[i];
+                var isDefault = i == 0;
+                options.AddDocument(description.GroupName, description.GroupName, isDefault: isDefault);
+            }
+        });
     }
     //#if (EnableJWT)
     app.UseAuthentication();
@@ -74,6 +94,37 @@ try
     //#if (EnableTelemetry)
     app.UseOpenTelemetryPrometheusScrapingEndpoint();
     //#endif
+
+    app.MapHealthChecks("/api/health", new HealthCheckOptions
+    {
+        ResponseWriter = async (context, report) =>
+        {
+            context.Response.ContentType = "application/json";
+            var response = new BaseResponse<object>
+            {
+                Data = new
+                {
+                    status = report.Status.ToString(),
+                    checks = report.Entries.Select(entry => new
+                    {
+                        name = entry.Key,
+                        status = entry.Value.Status.ToString(),
+                        description = entry.Value.Description,
+                        duration = entry.Value.Duration
+                    }),
+                    totalDuration = report.TotalDuration
+                }
+            };
+
+            if (report.Status != HealthStatus.Healthy)
+            {
+                response.Code = ResponseCode.Failed;
+                response.Message = ResponseCode.Failed.GetDescription();
+            }
+
+            await context.Response.WriteAsJsonAsync(response);
+        }
+    });
 
     app.MapControllers();
 

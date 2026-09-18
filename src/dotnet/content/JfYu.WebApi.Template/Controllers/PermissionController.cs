@@ -8,9 +8,7 @@ using JfYu.WebApi.Template.Model.Permission;
 using JfYu.WebApi.Template.Services.Interfaces;
 
 namespace JfYu.WebApi.Template.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
+{ 
     [Permission(PermissionCodes.Permission, PermissionType.Menu, parentCode: PermissionCodes.System)]
     public class PermissionController(IPermissionService permissionService) : CustomController
     {

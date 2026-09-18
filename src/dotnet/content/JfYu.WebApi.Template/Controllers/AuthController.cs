@@ -18,9 +18,7 @@ using JfYu.WebApi.Template.Exceptions;
 //#endif
 
 namespace JfYu.WebApi.Template.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
+{ 
     public class AuthController(IJwtService jwtService, IUserService userService, IOptions<JwtSettings> jwtSettings, ICurrentUser currentUser
         //#if (EnableRBAC)
         , ILoginLogService loginLogService
@@ -69,7 +67,7 @@ namespace JfYu.WebApi.Template.Controllers
                     RealName = user.RealName ?? user.UserName,
                     ExpiresIn = _jwtSettings.Expires,
                     //why return permissions as roles? because frontend have fixed filed "roles" to verify whether user have access right, if return "permissions", frontend need to change a lot of code, and "roles" is more intuitive for frontend to use
-                    Roles = user.Roles.Where(q => q.Status == (int)DataStatus.Active).SelectMany(r => r.Permissions).Where(p => p.Status == (int)DataStatus.Active).Select(p => p.Code).Distinct().ToList()
+                    Roles = [.. user.Roles.Where(q => q.Status == (int)DataStatus.Active).SelectMany(r => r.Permissions).Where(p => p.Status == (int)DataStatus.Active).Select(p => p.Code).Distinct()]
                 };
 
                 //#if (EnableRBAC)

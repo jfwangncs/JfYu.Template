@@ -39,7 +39,7 @@ namespace JfYu.WebApi.Template.Infrastructure
                                     Code = ResponseCode.Failed,
                                     ErrorCode = ErrorCode.AccountDisabled,
                                     Message = ErrorCode.AccountDisabled.GetDescription()
-                                }, jsonOptions);
+                                }, jsonOptions, context.RequestAborted);
                                 return;
                             }
                         }

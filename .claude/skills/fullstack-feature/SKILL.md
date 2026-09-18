@@ -1,6 +1,6 @@
 ---
 name: fullstack-feature
-description: "Implement a complete full-stack feature module (backend + frontend). Use when adding a new entity, CRUD endpoints, service, or any module in src/dotnet AND the corresponding Vue frontend. Covers: DB schema design with user review, Entity + AppDbContext, Request/Response DTOs, FluentValidation, ErrorCode assignment (4000+ range), Options config, Service interface + implementation (JfYu.Data), DI registration, Controller (CustomController), Vue router, API file (requestClient), VxeGrid list page, drawer form, and i18n locales (zh-CN + en-US error/system/page JSON). Follow project conventions end-to-end."
+description: "Implement a complete full-stack feature module (backend + frontend). Use when adding a new entity, CRUD endpoints, service, or any module in src/dotnet AND the corresponding Vue frontend. Covers: DB schema design with user review, Entity + AppDbContext, Request/Response DTOs, FluentValidation, ErrorCode assignment (4000+ range), Options config, Service interface + implementation (JfYu.Data), DI registration, Controller (CustomController), Vue router, API file (requestClient), VxeGrid list page, drawer form, and i18n locales (zh-CN + en-US system/page JSON; error messages are localized on the backend). Follow project conventions end-to-end."
 argument-hint: 'Feature module name, e.g. "Product" or "Order management"'
 ---
 
@@ -212,13 +212,31 @@ Open `src/dotnet/content/JfYu.WebApi.Template/Constants/ErrorCode.cs`.
 
 ```csharp
 #region Product
-[Description("Product not found.")]
 ProductNotFound = 4250,
 
-[Description("Duplicate product name.")]
 DuplicateProduct,
 #endregion
 ```
+
+Then add the display text to the resource files (keys follow `ErrorCode.{MemberName}`):
+
+`src/dotnet/content/JfYu.WebApi.Template/Resources/EnumMessages.resx` (English):
+
+```xml
+<data name="ErrorCode.ProductNotFound" xml:space="preserve">
+  <value>Product not found.</value>
+</data>
+```
+
+`src/dotnet/content/JfYu.WebApi.Template/Resources/EnumMessages.zh-CN.resx` (Chinese):
+
+```xml
+<data name="ErrorCode.ProductNotFound" xml:space="preserve">
+  <value>商品不存在。</value>
+</data>
+```
+
+To add another language (e.g., French, German), add `EnumMessages.fr.resx` / `EnumMessages.de.resx` with the same keys and register the culture in `AddCustomLocalization()`.
 
 ---
 
@@ -888,27 +906,9 @@ const [Grid] = useVbenVxeGrid({
 
 ## Step 14 — Frontend: i18n Locales
 
-Update **all four** locale files:
+> **Error messages**: The backend returns a localized `message` (from `src/dotnet/content/JfYu.WebApi.Template/Resources/EnumMessages.*.resx`, resolved by `Accept-Language`). Do **not** create frontend `error.json` files — the error toast in `request.ts` displays the backend `message` directly.
 
-### Error codes — map each new `ErrorCode` enum value to its numeric int key
-
-`src/locales/langs/zh-CN/error.json`:
-
-```json
-{
-  "4250": "商品不存在",
-  "4251": "商品名称已存在"
-}
-```
-
-`src/locales/langs/en-US/error.json`:
-
-```json
-{
-  "4250": "Product not found",
-  "4251": "Duplicate product name"
-}
-```
+Update the locale files:
 
 ### UI labels — field names, table headers, drawer titles
 
@@ -1123,7 +1123,7 @@ Test patterns to copy when adding tests for the listed components:
 - [ ] `data.ts` created with `useFormSchema`, `useGridFormSchema`, `useColumns`
 - [ ] `modules/form.vue` created (drawer create/edit form) — CRUD only
 - [ ] `index.vue` created (list page with VxeGrid using correct module type pattern)
-- [ ] `error.json` updated in both `zh-CN` and `en-US` with all new error codes
+- [ ] Error messages added to the backend `Resources/EnumMessages.resx` (English) and `EnumMessages.zh-CN.resx` (Chinese) — no frontend `error.json`
 - [ ] `system.json` updated in both `zh-CN` and `en-US` with all UI labels
 - [ ] `page.json` updated in both locales if a new route/menu title was added
 - [ ] Unit tests added under `__tests__/` for `data.ts` pure logic and the new API module (Step 15)

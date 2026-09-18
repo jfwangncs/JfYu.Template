@@ -161,6 +161,21 @@ Includes the `WebApi.UnitTests` project with:
 
 ---
 
+## Release & Versioning
+
+Versions follow SemVer and are driven by **git tags** (the CI does not auto-number versions):
+
+```bash
+git tag 1.2.3 && git push origin 1.2.3   # release 1.2.3
+git tag 2.0.0 && git push origin 2.0.0   # release a major version
+```
+
+Pushing a tag triggers `docker-push.yml`, which builds and pushes the image `jfyu-webapi:<tag>` + `:latest`, and bakes the version into the assembly.
+
+The running app exposes `GET /api/version` to report the current version (read from assembly metadata, no external dependency).
+
+---
+
 ## Project Structure (generated)
 
 ```
@@ -276,5 +291,5 @@ dotnet nuget push ./artifacts/JfYu.WebApi.Template.1.0.0.nupkg \
 - Secrets must never be committed — use `dotnet user-secrets` in development.
 - Never edit migration files manually (in `WebApi/Migrations/`).
 - The `#if` / `<!--#if-->` directive comments in source files are template engine markers — do not remove them.
-- Enum values carry `[Description]` attributes; use `.GetDescription()` for display text.
+- Enum display text lives in `Resources/EnumMessages.resx` (English) and `EnumMessages.<culture>.resx` variants; `.GetDescription()` resolves the language per request via `Accept-Language`. Add a language by adding a new `.resx` and registering the culture.
 - Throw `BusinessException(ErrorCode.XxxError)` from service layer; the global exception handler converts them to structured `BadRequest` responses.

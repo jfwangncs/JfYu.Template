@@ -12,9 +12,7 @@ using JfYu.WebApi.Template.Model.User;
 using JfYu.WebApi.Template.Services.Interfaces;
 
 namespace JfYu.WebApi.Template.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
+{ 
     [Permission(PermissionCodes.User, PermissionType.Menu, parentCode: PermissionCodes.System)]
     public class UserController(IUserService userService, ICurrentUser currentUser) : CustomController
     {
