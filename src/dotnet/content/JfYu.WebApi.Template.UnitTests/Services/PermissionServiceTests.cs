@@ -13,7 +13,7 @@ namespace JfYu.WebApi.Template.UnitTests.Services
         private static PermissionService CreateService(out (Entity.AppDbContext ctx, JfYu.Data.Context.ReadonlyDBContext<Entity.AppDbContext> ro) bag)
         {
             bag = DbContextFactory.CreateInMemory();
-            return new PermissionService(bag.ctx, bag.ro, NullLogger<Permission>.Instance);
+            return new PermissionService(bag.ctx, bag.ro, NullLogger<PermissionService>.Instance);
         }
 
         // ─── GetPagedAsync ────────────────────────────────────────────────────
